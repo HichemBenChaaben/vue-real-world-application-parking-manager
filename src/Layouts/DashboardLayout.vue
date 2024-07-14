@@ -28,24 +28,17 @@
               revenue
             </router-link>
           </li>
-          <li class="border-b border-gray-100">
-            <router-link
-              active-class="text-blue-500 font-bold"
-              class="flex w-full p-2 hover:text-blue-500"
-              to="/dashboard/analytics"
-            >
-              analytics
-            </router-link>
-          </li>
         </ul>
       </div>
     </aside>
     <main class="h-full w-full min-h-dvh flex flex-col px-4 overflow-scroll">
       <div
-        class="card bg-white p-4 shadow-sm border border-solid border-gray-300 mb-4 sticky top-0"
+        class="card bg-white p-4 shadow-sm border border-solid border-gray-300 mb-4 sticky top-0 z-20"
       >
         <div class="flex justify-between">
           <h1 class="font-bold">Welcome anon</h1>
+
+          <OfflineIndicator />
 
           <div>
             <button
@@ -68,6 +61,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import useAuthStore from '@/stores/authStore'
+import OfflineIndicator from '@/components/OfflineIndicator.vue'
 
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)

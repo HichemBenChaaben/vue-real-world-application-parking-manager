@@ -44,7 +44,6 @@
         <label class="inline-flex items-center cursor-pointer capitalize mx-2">
           <input
             type="checkbox"
-            value=""
             class="sr-only peer"
             v-model="activeSessionsOnly"
             @change="toggleActiveOnly"
@@ -59,7 +58,6 @@
         <label class="inline-flex items-center cursor-pointer capitalize mx-2">
           <input
             type="checkbox"
-            value=""
             class="sr-only peer"
             v-model="visitorsOnly"
             @change="toggleVisitorsOnly"
@@ -80,7 +78,7 @@
         <div v-if="!firstMount && !loading" class="max-h-[400px] overflow-scroll w-full">
           <table class="bg-white border border-gray-300 text-sm w-full">
             <thead
-              class="sticky top-[-1px] border-t-1 border-gray-200 z-99 bg-white border-collapse py-2"
+              class="sticky z-10 top-[-1px] border-t-1 border-gray-200 z-99 bg-white border-collapse py-2"
             >
               <tr>
                 <th class="py-2 px-4 border-b text-left">Parking Id</th>
@@ -99,6 +97,10 @@
                 v-for="session in filteredParkingSessions"
                 :key="session.parkingSessionId"
                 class="text-right"
+                :class="{
+                  'bg-gray-50': session.isSessionEnded,
+                  'bg-blue-100': parkingSessionIdBusy === session.parkingSessionId
+                }"
               >
                 <td class="py-2 px-4 border-b text-left">
                   <Indicator :variant="session.parkingSpaceId === 1 ? 'secondary' : 'primary'">
@@ -111,8 +113,8 @@
                 <td class="text-center py-2 px-4 border-b">
                   {{ formatDate(session.sessionEndedAt) }}
                 </td>
-                <td class="text-right py-2 px-4 border-b">
-                  {{ session.sessionLengthInHoursMinutes }}
+                <td class="text-right py-2 px-4 border-b font-semibold text-gray-600 font-italic">
+                  {{ session.sessionLengthInHoursMinutes ?? '-' }}
                 </td>
                 <td class="text-right py-2 px-4 border-b">
                   {{ session.vehicleLicensePlate }}
@@ -124,11 +126,16 @@
                 </td>
                 <td class="text-right py-2 px-4 border-b">
                   <button
-                    v-if="showIfActive(session)"
-                    @click="handleEndSession"
+                    :disabled="parkingSessionIdBusy === session.parkingSessionId"
+                    v-if="!session.isSessionEnded"
+                    @click="handleEndSession(session)"
                     class="bg-white text-red-600 rounded text-xs px-2 py-1 hover:bg-red-600 hover:text-white hover:border-white border border-1 font-semibold"
                   >
-                    End session
+                    {{
+                      parkingSessionIdBusy === session.parkingSessionId
+                        ? 'loading...'
+                        : 'end session'
+                    }}
                   </button>
                   <span v-else class="capitalize text-gray-700 font-semibold">ended</span>
                 </td>
@@ -145,7 +152,11 @@
           :isLastPage="isLastPage"
         />
         <div class="inline-flex items-end">
-          <select class="mx-4 border border-gray-300 rounded-md px-2 py-1" v-model="totalDisplay">
+          <select
+            class="mx-4 border border-gray-300 rounded-md px-2 py-1"
+            v-model="totalDisplay"
+            @change="() => store.updateLimit(totalDisplay)"
+          >
             <option value="10">10</option>
             <option value="20">20</option>
             <option value="50">50</option>
@@ -172,13 +183,19 @@ const firstMount = ref<boolean>(true)
 const activeSessionsOnly = ref<boolean>(false)
 const visitorsOnly = ref<boolean>(false)
 const vehiculeType = ref('')
-
-const { loading, activeSessions, filteredParkingSessions, sessionsList, isLastPage } =
-  storeToRefs(store)
-
+const {
+  loading,
+  activeSessions,
+  filteredSessions,
+  filteredParkingSessions,
+  sessionsList,
+  isLastPage,
+  parkingSessionIdBusy
+} = storeToRefs(store)
 const { formatDate } = useDateFormat()
 
-const totalDisplay = ref(10)
+// infernig the type of the limit from the store
+const totalDisplay = ref<number>(store.filters.limit as number)
 
 watch(
   () => loading.value,
@@ -212,22 +229,20 @@ store.fetchSessionList({
   offset: 1
 })
 
-const showIfActive = (session: ParkingSession) => {
+const showIfActive = (session: ParkingSession): boolean => {
   return (
     !session.isSessionEnded && session.sessionStartedAt !== null && session.sessionEndedAt === null
   )
 }
 
-const handleEndSession = () => {
-  console.log('handle ending session')
+const handleEndSession = (session: ParkingSession): void => {
+  store.endParkingSession(session.parkingSessionId)
 }
 
 const toggleActiveOnly = () => {
-  if (activeSessionsOnly.value === false) {
-    store.toggleActiveSessions(activeSessionsOnly.value)
-  } else {
-    store.toggleActiveSessions(null)
-  }
+  const toggleValue: boolean | null =
+    activeSessionsOnly.value === false ? activeSessionsOnly.value : null
+  store.toggleActiveSessions(toggleValue)
 }
 
 const toggleVisitorsOnly = () => {
@@ -236,7 +251,6 @@ const toggleVisitorsOnly = () => {
 </script>
 
 <style scoped>
-/* Add your custom styles here */
 .body-row {
   tr {
     @apply hover:bg-slate-100;

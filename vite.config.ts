@@ -13,7 +13,6 @@ export default defineConfig({
       '/v1': {
         target: 'http://localhost:3000', // Proxy requests to our express server
         changeOrigin: true,
-        secure: false,
         ws: true
       }
     }

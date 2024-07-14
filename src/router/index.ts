@@ -3,7 +3,7 @@ import PublicLayout from '@/Layouts/PublicLayout.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
 import LoginView from '@/views/LoginView.vue'
 import DashboardLayout from '@/Layouts/DashboardLayout.vue'
-import authMiddleWare from './middlewares/auth'
+import useLoginStore from '@/stores/authStore'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -64,6 +64,19 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach(authMiddleWare)
+// Check if the route requires authentication
+// if the user is not authenticated, redirect to the login page
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    const store = useLoginStore()
+    if (store.isAuthenticated()) {
+      next()
+    } else {
+      next('/')
+    }
+  } else {
+    next()
+  }
+})
 
 export default router

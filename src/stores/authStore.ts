@@ -29,24 +29,27 @@ const useLoginStore = defineStore('login', () => {
   const loading = ref(false)
   const error = ref('')
 
-  // TODO: fix after the login
   const user = ref<UserProfile | null>({
     user: {
-      id: 'string',
-      email: 'string'
+      id: undefined,
+      email: undefined
     },
     auth: {
-      accessToken: 'string',
-      expiresIn: 0
+      accessToken: undefined,
+      expiresIn: undefined
     }
   })
 
-  const isAuthenticated = () => user.value !== null
+  const isAuthenticated = () => {
+    console.log('is authticated...', user.value)
+    return user.value?.user?.email !== undefined
+  }
   /** Getters */
   const getUser = () => user.value
 
   /** Actions */
   const setUser = (u: UserProfile) => {
+    console.log('user...', u)
     user.value = u
   }
 
@@ -72,8 +75,10 @@ const useLoginStore = defineStore('login', () => {
   const getMe = async (): Promise<void> => {
     try {
       loading.value = true
-      const response = await api.loginService.me()
-      setUser(response.data)
+      const {
+        data: { data }
+      } = await api.loginService.me()
+      setUser(data)
     } catch (err: unknown | Error | AxiosError) {
       if (axios.isAxiosError(err)) {
         error.value = err.response?.data.message

@@ -79,7 +79,7 @@ import SessionsTable from '@/components/SessionsTable/SessionsTable.vue'
 import Indicator from '@/components/Indicator.vue'
 
 const store = useSpacesStore()
-const { spaces, motorcycles, cars, vehicules } = storeToRefs(store)
+const { motorcycles, cars } = storeToRefs(store)
 
 const limit = 100
 const offset = 1

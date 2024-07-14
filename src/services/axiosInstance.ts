@@ -40,9 +40,13 @@ axiosInstance.interceptors.response.use(
   (error: AxiosError) => {
     // Handle cancellation
     if (axios.isCancel(error)) {
-      console.log('Request canceled:', error.message)
-      // Remove the cancel token from the map on cancellation
       cancelTokens.delete(error?.config?.url!)
+    }
+
+    // Redirect to the login page if the user is not authorised
+    // example the session expires while the user is still logged in in the frontend
+    if (error.response && error.response.status === 401) {
+      window.location.href = '/'
     }
     return Promise.reject(error)
   }

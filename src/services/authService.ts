@@ -43,6 +43,6 @@ export async function login(credentials: LoginCredentials): Promise<AxiosRespons
   }
 }
 
-export async function me(): Promise<AxiosResponse<AuthMeResponse>> {
-  return await axiosInstance.post('/api/auth/me')
+export async function me(): Promise<AxiosResponse<{ data: AuthMeResponse }>> {
+  return await axiosInstance.get('/v1/auth/me')
 }

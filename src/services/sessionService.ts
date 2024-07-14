@@ -7,7 +7,7 @@ export interface SessionListParams {
   offset: number
   limit: number
   isSessionEnded: boolean
-  sessionStartedFrom: string
+  sessionStartedAtFrom: string
   sessionStartedAtTo: string
   sessionEndedAtFrom: string
   sessionEndedAtTo: string
@@ -31,10 +31,29 @@ export type ParkingSession = {
   readonly vehicleType: string
 }
 
+interface EndedSession {
+  ParkingSpaceId: number
+  sessionLengthInHoursMinutes: number
+}
+
+export interface EndParkingSession {
+  endedSession: EndedSession
+}
+
 export async function list(
   params: Partial<SessionListParams>
 ): Promise<AxiosResponse<{ data: SessionListResponse }>> {
   return axiosInstance.get('/v1/parking/sessions/list', {
     params
+  })
+}
+
+export async function endSession(
+  parkingSessionId: string
+): Promise<AxiosResponse<{ data: EndParkingSession }>> {
+  return axiosInstance.post(`/v1/parking/session/end`, {
+    parkingSession: {
+      id: parkingSessionId
+    }
   })
 }

@@ -45,11 +45,25 @@ const { loading, user, error } = storeToRefs(store)
 
 const handleSubmit = async () => {
   store.login({ email: email.value, password: password.value })
+  // store.getMe()
 }
 
-// if (user) {
-//   router.push('/dashboard')
-// }
+if (user) {
+  // window.location.reload()
+  // router.push('/dashboard')
+}
+
+// white a post request to /auth with email and password using fetch
+// if the response is 200, store the token in the store
+// if the response is 401, show an error message
+
+await fetch('/v1/auth', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ email: email.value, password: password.value })
+})
 </script>
 
 <style scoped></style>

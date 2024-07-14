@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import axios, { type AxiosError } from 'axios'
 import api from '@/services/api'
 import type {
+  EndParkingSession,
   ParkingSession,
   SessionListParams,
   SessionListResponse
@@ -26,10 +27,11 @@ const useSessionsStore = defineStore('sessions', () => {
   const sessionsList = ref<TypeOrNull<SessionListResponse>>(null)
   const filteredParkingSessions = ref<SessionListResponse['parkingSessions'] | null>(null)
   const currentPage = ref<number>(1)
+  const parkingSessionIdBusy = ref<TypeOrNull<string>>(null)
 
   const defaultStoreFilters: Partial<SessionListParams> = {
     offset: 0,
-    limit: 10
+    limit: 100
   }
 
   /* extending the sessionlistparams to create filters type that can be set to null */
@@ -52,11 +54,10 @@ const useSessionsStore = defineStore('sessions', () => {
       } = await api.sessionsService.list(params)
       sessionsList.value = data
     } catch (err: unknown | Error | AxiosError) {
-      // axios error, handle
+      // checking if the error is not stock error
       if (axios.isAxiosError(err)) {
         error.value = err.response?.data.message
       }
-      // some stock error if its not axios error
     } finally {
       loading.value = false
       applyFilters()
@@ -100,6 +101,11 @@ const useSessionsStore = defineStore('sessions', () => {
       list = list.filter((session) => session.parkingSpaceId !== 1)
     }
 
+    // limit being changed and reduced
+    if (filters.value.limit && filters.value.limit < list.length) {
+      list = list.slice(0, filters.value.limit)
+    }
+
     filteredParkingSessions.value = list
   }
 
@@ -120,22 +126,77 @@ const useSessionsStore = defineStore('sessions', () => {
     return false
   })
 
-  // anytime the page changes we fetch with different offset
+  // anytime the currentPage value changes we fetch results with a different offset
   watch(
     () => currentPage.value,
     (newValue, oldValue) => {
-      console.log('page changed', newValue)
       if (newValue !== oldValue) {
         filters.value.offset = (currentPage.value - 1) * (filters.value.limit || 10)
         fetchSessionList(filters.value)
       }
     }
   )
+  // anytime the limit changes
+  // if the new limit is greater we fetch, otherwise we shorten the existing results
+  watch(
+    () => filters.value.limit,
+    (newValue, oldValue) => {
+      console.log('limit changed', newValue)
+      if (newValue !== oldValue && newValue && oldValue) {
+        if (newValue > oldValue) {
+          fetchSessionList(filters.value)
+        } else {
+          applyFilters()
+        }
+      }
+    }
+  )
+
+  const updateLimit = (limit: number) => {
+    filters.value.limit = limit
+  }
+
+  const endParkingSession = async (parkingSessionId: string) => {
+    try {
+      parkingSessionIdBusy.value = parkingSessionId
+      const res = await api.sessionsService.endSession(parkingSessionId)
+      const endedSessionData = res.data.data
+      udpateParkingSession(endedSessionData, parkingSessionId)
+    } catch (err: unknown | Error | AxiosError) {
+      if (axios.isAxiosError(err)) {
+        error.value = err.response?.data.message
+      }
+    } finally {
+      parkingSessionIdBusy.value = null
+    }
+  }
+
+  const udpateParkingSession = (endedSessionData: EndParkingSession, parkingSessionId: string) => {
+    let list = [...(sessionsList.value?.parkingSessions || [])]
+    list =
+      list.map((session) => {
+        if (session.parkingSessionId === parkingSessionId) {
+          return {
+            ...session,
+            isSessionEnded: true,
+            sessionLengthInHoursMinutes: endedSessionData.endedSession.sessionLengthInHoursMinutes
+          }
+        }
+        return session
+      }) || []
+
+    filteredParkingSessions.value = list
+  }
+
+  // Use the state in the template or computed properties
+  const filteredSessions = computed(() => filteredParkingSessions.value)
 
   return {
+    updateLimit,
     activeSessions,
     sessionsList,
     fetchSessionList,
+    endParkingSession,
     toggleActiveSessions,
     toggleVisitors,
     nextPage,
@@ -143,7 +204,10 @@ const useSessionsStore = defineStore('sessions', () => {
     isLastPage,
     currentPage,
     filteredParkingSessions,
-    loading
+    parkingSessionIdBusy,
+    filteredSessions,
+    loading,
+    filters
   }
 })
 

@@ -23,7 +23,7 @@ app.use(
     changeOrigin: true,
     xfwd: true,
     on: {
-      proxyReq: (proxyReq, req, res) => {
+      proxyReq: (proxyReq, req) => {
         if (req.body) {
           // parsers messes up the request body, need to restream it
           let bodyData = JSON.stringify(req.body)
@@ -37,7 +37,7 @@ app.use(
         }
       }
     },
-    onError: (err, req, res) => {
+    onError: (err) => {
       console.error('Proxy error:', err)
       res.status(500).send('Proxy error')
     }

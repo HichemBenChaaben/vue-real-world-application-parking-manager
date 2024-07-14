@@ -33,6 +33,15 @@
       </div>
       <div class="min-w-[600px] border-l-2 border-solid border-gray-100 px-6">
         <form @submit.prevent="handleSubmit" novalidate>
+          <ConfettiExplosion
+            v-if="showConfetti"
+            :particleCount="200"
+            :force="0.2"
+            :particleSize="4"
+            :duration="4000"
+            :stageHeight="600"
+            :shouldDestroyAfterDone="true"
+          />
           <div class="py-2 pt-0">
             <label class="capitalize font-semibold text-lg"> vehicule type </label>
             <select
@@ -70,6 +79,19 @@
             />
           </div>
           <div v-if="errorMessage" class="text-red-500">{{ errorMessage }}</div>
+          <div v-if="error">{{ error }}</div>
+          <div
+            v-if="error && !loading"
+            class="bg-red-100 p-4 border border-solid border-red-300 text-xs rounded-md py-4 my-4 text-red-400"
+          >
+            We couldn't create your session, please try again
+          </div>
+          <div
+            v-if="showConfetti && !loading"
+            class="capitalize text-green-800 bg-green-100 border border-green-400 text-xs rounded-md p-4"
+          >
+            session created successfully
+          </div>
           <div class="py-2 flex justify-end">
             <Button type="submit" :busy="loading" busyText="creating a session...">create</Button>
           </div>
@@ -104,22 +126,26 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
+import ConfettiExplosion from 'vue-confetti-explosion'
 import useSessionsStore from '@/stores/sessionsStore'
 import useSpacesStore from '@/stores/spacesStore'
 import Overview from '@/components/Overview.vue'
 import Button from '@/components/Button.vue'
-import { parkingSessionSchema, type ParkingSession } from '@/schemas/parkingSessionSchema'
+import { parkingSessionSchema } from '@/schemas/parkingSessionSchema'
 import Indicator from '@/components/Indicator.vue'
 import { type ParkingSessionCreateParams, type VehiculeType } from '@/services/sessionService'
+import { useDateFormat } from '@/composables/useDateFormat'
 
+const { formatDate } = useDateFormat()
 const spacesStore = useSpacesStore()
 const { spaces } = storeToRefs(spacesStore)
 const sessionsStore = useSessionsStore()
-const { loading } = storeToRefs(sessionsStore)
+const { loading, error, sessionStarted } = storeToRefs(sessionsStore)
 const isResident = ref<boolean>(false)
 const vehicleLicensePlate = ref<string>('')
 const vehicleType = ref<VehiculeType>('CAR')
 const errorMessage = ref<string | null>(null)
+const showConfetti = ref<boolean>(false)
 
 const hourlyCharge = computed(() => {
   return isResident.value
@@ -130,6 +156,7 @@ const hourlyCharge = computed(() => {
 })
 
 const handleSubmit = () => {
+  showConfetti.value = false
   const formData: ParkingSessionCreateParams = {
     vehicleType: vehicleType.value,
     isResident: isResident.value,
@@ -144,6 +171,7 @@ const handleSubmit = () => {
     errorMessage.value = null
     sessionsStore.startParkingSession(formData)
     resetFormData()
+    showConfetti.value = true
   }
 }
 

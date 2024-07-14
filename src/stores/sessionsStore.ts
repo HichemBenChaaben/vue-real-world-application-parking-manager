@@ -7,7 +7,8 @@ import type {
   ParkingSession,
   SessionListParams,
   SessionListResponse,
-  ParkingSessionCreateParams
+  ParkingSessionCreateParams,
+  StartSessionResponse
 } from '@/services/sessionService'
 import type { Maybe, TypeOrNull } from 'types'
 
@@ -29,6 +30,7 @@ const useSessionsStore = defineStore('sessions', () => {
   const filteredParkingSessions = ref<SessionListResponse['parkingSessions'] | null>(null)
   const currentPage = ref<number>(1)
   const parkingSessionIdBusy = ref<TypeOrNull<string>>(null)
+  const sessionStarted = ref<TypeOrNull<StartSessionResponse>>(null)
 
   const defaultStoreFilters: Partial<SessionListParams> = {
     offset: 0,
@@ -192,9 +194,10 @@ const useSessionsStore = defineStore('sessions', () => {
   const startParkingSession = async (params: ParkingSessionCreateParams): Promise<void> => {
     try {
       loading.value = true
-      console.log('loading =>', loading.value)
-      const res = await api.sessionsService.startSession(params)
-      console.log('respose....', res)
+      const {
+        data: { data }
+      } = await api.sessionsService.startSession(params)
+      sessionStarted.value = data
     } catch (err: unknown | Error | AxiosError) {
       if (axios.isAxiosError(err)) {
         error.value = err.response?.data.message
@@ -212,6 +215,7 @@ const useSessionsStore = defineStore('sessions', () => {
     updateLimit,
     activeSessions,
     sessionsList,
+    sessionStarted,
     fetchSessionList,
     endParkingSession,
     startParkingSession,
@@ -225,7 +229,8 @@ const useSessionsStore = defineStore('sessions', () => {
     parkingSessionIdBusy,
     filteredSessions,
     loading,
-    filters
+    filters,
+    error
   }
 })
 

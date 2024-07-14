@@ -75,8 +75,6 @@ export interface StartSessionResponse {
 export async function startSession(
   params: ParkingSessionCreateParams
 ): Promise<AxiosResponse<{ data: StartSessionResponse }>> {
-  console.log('params', params)
-  console.log('creating a post request....', { parkingSession: params })
   return axiosInstance.post(`/v1/parking/session/start`, {
     parkingSession: params
   })

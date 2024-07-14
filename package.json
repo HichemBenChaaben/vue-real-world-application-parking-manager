@@ -33,6 +33,7 @@
     "vue": "^3.4.29",
     "vue-chartjs": "^5.3.1",
     "vue-confetti": "^2.3.0",
+    "vue-confetti-explosion": "^1.0.2",
     "vue-router": "^4.3.3",
     "zod": "^3.23.8"
   },

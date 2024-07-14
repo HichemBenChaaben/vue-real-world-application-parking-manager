@@ -4,7 +4,9 @@
       class="min-w-[200px] absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-white duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 -translate-x-full border border-l-1"
     >
       <div class="nin-w-[400px] flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6">
-        <strong class="text-xl text-blue-500">Parking app</strong>
+        <router-link to="/dashboard">
+          <strong class="text-xl text-blue-500">Parking app</strong>
+        </router-link>
       </div>
       <div class="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-6">
         <ul class="capitalize font-bold">

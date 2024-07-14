@@ -42,6 +42,11 @@ app.post('/auth/login', (req, res) => {
     .post(`https://parkdemeer-afde952e3fef.herokuapp.com/v1/auth/password`, req.body)
     .then((response) => {
       const accessToken = response.data.data.auth.accessToken
+
+      // important note Safari / old browsers with strict cookie policy
+      // if you want to test production bundle on safari, change the cookie policy first
+      // this configuration will not work for some browsers on localhost like some versions safari
+      // the config is meant for the application to be deployed on a domain using https and used as a first party cookie
       res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'strict' })
       res.json({ data: response.data.data })
     })

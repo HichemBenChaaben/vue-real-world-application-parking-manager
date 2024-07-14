@@ -12,14 +12,18 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 
-const store = useLoginStore()
-await store.getMe()
+async function initialize() {
+  const store = useLoginStore()
+  await store.getMe()
 
-// Redirect based on authentication status before mounting the app
-if (store.isAuthenticated) {
-  router.push('/dashboard')
-} else {
-  router.push('/')
+  // Redirect based on authentication status before mounting the app
+  if (store.isAuthenticated) {
+    router.push('/dashboard')
+  } else {
+    router.push('/')
+  }
 }
+
+initialize()
 
 app.mount('#app')

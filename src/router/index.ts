@@ -49,19 +49,20 @@ const router = createRouter({
           }
         }
       ]
-    },
-    {
-      path: '/:pathMatch(.*)*',
-      name: 'NotFound',
-      component: PublicLayout,
-      children: [
-        {
-          path: '',
-          name: 'notfound',
-          component: NotFoundView
-        }
-      ]
     }
+    // todo fixme
+    // {
+    //   path: '/:pathMatch(.*)*',
+    //   name: 'NotFound',
+    //   component: PublicLayout,
+    //   children: [
+    //     {
+    //       path: '',
+    //       name: 'notfound',
+    //       component: NotFoundView
+    //     }
+    //   ]
+    // }
   ]
 })
 

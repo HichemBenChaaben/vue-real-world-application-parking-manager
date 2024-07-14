@@ -25,91 +25,99 @@ export type User = {
   readonly email?: string
 }
 
-const useLoginStore = defineStore('login', () => {
-  /** State */
-  const loading = ref(false)
-  const error = ref('')
-  const isAuthenticated = ref(false)
+const useLoginStore = defineStore(
+  'login',
+  () => {
+    /** State */
+    const loading = ref(false)
+    const error = ref('')
+    const isAuthenticated = ref(false)
 
-  const user = ref<UserProfile | null>({
-    user: {
-      id: undefined,
-      email: undefined
-    },
-    auth: {
-      accessToken: undefined,
-      expiresIn: undefined
+    const user = ref<UserProfile | null>({
+      user: {
+        id: undefined,
+        email: undefined
+      },
+      auth: {
+        accessToken: undefined,
+        expiresIn: undefined
+      }
+    })
+
+    /** Actions */
+    const setUser = (userResponse: UserProfile) => {
+      user.value = userResponse.data
     }
-  })
 
-  /** Actions */
-  const setUser = (userResponse: UserProfile) => {
-    user.value = userResponse.data
-  }
-
-  const login = async (credentials: { email: string; password: string }): Promise<void> => {
-    try {
-      loading.value = true
-      const response = await api.loginService.login(credentials)
-      if (response.status === 200) {
-        isAuthenticated.value = true
-        await getMe()
-        router.push('/dashboard')
+    const login = async (credentials: { email: string; password: string }): Promise<void> => {
+      try {
+        loading.value = true
+        const response = await api.loginService.login(credentials)
+        if (response.status === 200) {
+          isAuthenticated.value = true
+          await getMe()
+          router.push('/dashboard')
+        }
+      } catch (err: unknown | Error | AxiosError) {
+        if (axios.isAxiosError(err)) {
+          error.value = err.response?.data.message
+        }
+      } finally {
+        loading.value = false
       }
-    } catch (err: unknown | Error | AxiosError) {
-      if (axios.isAxiosError(err)) {
-        error.value = err.response?.data.message
-      }
-    } finally {
-      loading.value = false
     }
-  }
 
-  const getMe = async (): Promise<void> => {
-    try {
-      loading.value = true
-      const {
-        data: { data }
-      } = await api.loginService.me()
-      setUser(data)
+    const getMe = async (): Promise<void> => {
+      if (isAuthenticated.value === true) {
+        return
+      }
+      try {
+        loading.value = true
+        const {
+          data: { data }
+        } = await api.loginService.me()
+        setUser(data)
 
-      if (data.user?.email) {
-        isAuthenticated.value = true
+        if (data.user?.email) {
+          isAuthenticated.value = true
+        }
+      } catch (err: unknown | Error | AxiosError) {
+        if (axios.isAxiosError(err)) {
+          error.value = err.response?.data.message
+        }
+      } finally {
+        loading.value = false
       }
-    } catch (err: unknown | Error | AxiosError) {
-      isAuthenticated.value = false
-      if (axios.isAxiosError(err)) {
-        error.value = err.response?.data.message
-      }
-    } finally {
-      loading.value = false
     }
-  }
 
-  const logout = async (): Promise<void> => {
-    try {
-      loading.value = true
-      await api.loginService.logout()
-      isAuthenticated.value = false
-    } catch (err: unknown | Error | AxiosError) {
-      if (axios.isAxiosError(err)) {
-        error.value = err.response?.data.message
+    const logout = async (): Promise<void> => {
+      try {
+        loading.value = true
+        await api.loginService.logout()
+        isAuthenticated.value = false
+      } catch (err: unknown | Error | AxiosError) {
+        if (axios.isAxiosError(err)) {
+          error.value = err.response?.data.message
+        }
+      } finally {
+        loading.value = false
+        router.push('/')
       }
-    } finally {
-      loading.value = false
-      router.push('/')
     }
-  }
 
-  return {
-    isAuthenticated,
-    loading,
-    error,
-    getMe,
-    login,
-    logout,
-    user
+    return {
+      isAuthenticated,
+      loading,
+      error,
+      getMe,
+      login,
+      logout,
+      user
+    }
+  },
+  {
+    persist: true
   }
-})
+)
 
 export default useLoginStore

@@ -53,7 +53,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import useAuthStore from '@/stores/authStore'
-import OfflineIndicator from '@/components/OfflineIndicator.vue'
+import OfflineIndicator from '@/components/OfflineIndicator/OfflineIndicator.vue'
 
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)

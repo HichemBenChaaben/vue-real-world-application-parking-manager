@@ -24,7 +24,17 @@
           />
         </div>
         <p v-if="error" class="text-red-400 pt-4">incorrect username or password</p>
-        <Button type="submit" :busy="loading" busyText="Login...">submit</Button>
+        <div class="py-6 w-full">
+          <Button
+            type="submit"
+            class="w-full"
+            :busy="loading"
+            :disabled="loading"
+            busyText="Logging..."
+          >
+            Login
+          </Button>
+        </div>
       </form>
     </div>
   </div>
@@ -39,31 +49,29 @@ import Button from '@/components/Button.vue'
 const router = useRouter()
 const email = ref<string>()
 const password = ref<string>()
-
+const hasErrors = ref(false)
 const store = useLoginStore()
-const { loading, user, error } = storeToRefs(store)
+const loading = ref(false)
+
+const { error, isAuthenticated } = storeToRefs(store)
 
 const handleSubmit = async () => {
-  store.login({ email: email.value, password: password.value })
-  // store.getMe()
+  try {
+    loading.value = true
+    hasErrors.value = false
+    await store.login({
+      email: 'super@parkdemeer.nl',
+      password: 'SUPER_USER_SECRET_PASS'
+    })
+  } catch (error) {
+    hasErrors.value = true
+  } finally {
+    loading.value = false
+    if (isAuthenticated.value) {
+      router.push('/dashboard')
+    }
+  }
 }
-
-if (user) {
-  // window.location.reload()
-  // router.push('/dashboard')
-}
-
-// white a post request to /auth with email and password using fetch
-// if the response is 200, store the token in the store
-// if the response is 401, show an error message
-
-await fetch('/v1/auth', {
-  method: 'GET',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ email: email.value, password: password.value })
-})
 </script>
 
 <style scoped></style>

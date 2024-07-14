@@ -1,10 +1,22 @@
 <template>
   <div>
-    <Overview>
-      <template #title> Highlights </template>
-      <template #line> Overview of the building </template>
-    </Overview>
+    <div class="px-0 m-0 flex justify-between w-full items-center">
+      <Overview>
+        <template #title> Highlights </template>
+        <template #line> Overview of the building </template>
+      </Overview>
 
+      <div class="flex items-end">
+        <router-link to="/dashboard/create">
+          <button
+            class="bg-indigo-600 border border-1 border-indigo-800 hover:bg-indigo-400 font-semibold text-white rounded rounded-1 px-4 py-1 color-white capitalize"
+          >
+            <i class="fas fa-plus"></i>
+            <span class="pl-2">new session</span>
+          </button>
+        </router-link>
+      </div>
+    </div>
     <div class="overview-card">
       <SessionsTable />
     </div>
@@ -77,6 +89,10 @@ import useSpacesStore from '@/stores/spacesStore'
 import DaughnutChart, { type Data } from '@/components/DaughnutChart.vue'
 import SessionsTable from '@/components/SessionsTable/SessionsTable.vue'
 import Indicator from '@/components/Indicator.vue'
+import useLoginStore from '@/stores/authStore'
+
+const authStore = useLoginStore()
+const { user, isAuthenticated } = storeToRefs(authStore)
 
 const store = useSpacesStore()
 const { motorcycles, cars } = storeToRefs(store)
@@ -116,7 +132,7 @@ const config = computed((): Data => {
 </script>
 <style scoped>
 .overview-cards {
-  @apply my-4 flex flex-col md:grid md:grid-cols-2 gap-4 w-full;
+  @apply my-2 flex flex-col md:grid md:grid-cols-2 gap-4 w-full;
 }
 .overview-card {
   @apply p-6 rounded overflow-hidden shadow-sm border border-solid border-gray-300 bg-white w-full;

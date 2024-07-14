@@ -26,21 +26,16 @@ interface LoginResponse {
 }
 
 interface LoginCredentials {
-  username: string
+  email: string
   password: string
 }
-// TODO use the real creadentials here...
+
 export async function login(credentials: LoginCredentials): Promise<AxiosResponse<LoginResponse>> {
-  const cre = {
-    email: 'super@parkdemeer.nl',
-    password: 'SUPER_USER_SECRET_PASS'
-  }
-  try {
-    const res = await axiosInstance.post('/api/auth/password', cre)
-    return res.data
-  } catch (error) {
-    throw new Error(error.response.data.message)
-  }
+  return await axiosInstance.post('/auth/login', credentials)
+}
+
+export async function logout(): Promise<AxiosResponse<void>> {
+  return await axiosInstance.post('/auth/logout')
 }
 
 export async function me(): Promise<AxiosResponse<{ data: AuthMeResponse }>> {

@@ -33,23 +33,15 @@
     </aside>
     <main class="h-full w-full min-h-dvh flex flex-col px-4 overflow-scroll">
       <div
-        class="card bg-white p-4 shadow-sm border border-solid border-gray-300 mb-4 sticky top-0 z-20"
+        class="card bg-white p-4 shadow-sm border border-solid border-gray-300 sticky top-0 z-20"
       >
         <div class="flex justify-between">
-          <h1 class="font-bold">Welcome anon</h1>
+          <h1 class="font-bold">Welcome {{ user }}</h1>
 
           <OfflineIndicator />
 
           <div>
-            <button
-              class="bg-indigo-600 border border-1 border-indigo-800 hover:bg-indigo-400 font-semibold text-white rounded rounded-1 px-4 py-1 mr-2 color-white capitalize"
-            >
-              <i class="fas fa-plus"></i>
-              <span class="pl-2">new session</span>
-            </button>
-            <router-link class="hover:font-semi-bold hover:text-blue-500" to="/logout">
-              logout
-            </router-link>
+            <button @click="handleLogout">logout</button>
           </div>
         </div>
       </div>
@@ -65,4 +57,8 @@ import OfflineIndicator from '@/components/OfflineIndicator.vue'
 
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
+
+const handleLogout = () => {
+  authStore.logout()
+}
 </script>

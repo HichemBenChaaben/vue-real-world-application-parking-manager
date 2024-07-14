@@ -23,6 +23,15 @@
 
     <div class="flex justify-between border boder-1 border-gray-200 p-4 mb-4">
       <div class="flex justify-start items-center gap-4">
+        <select
+          v-model="vehiculeType"
+          @change="() => store.filterVehiculeType(vehiculeType)"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option value="all">all vehicules</option>
+          <option value="car">car</option>
+          <option value="motorcycle">motorcycle</option>
+        </select>
         <input
           type="text"
           id="first_name"
@@ -30,15 +39,7 @@
           placeholder="Liscence plate"
           required
         />
-        <select
-          v-model="vehiculeType"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-        >
-          <option selected>Choose a vehicule</option>
-          <option value="car">car</option>
-          <option value="mororcycle">motorcycle</option>
-        </select>
-        <button class="">Search</button>
+        <Button>Search</Button>
       </div>
       <div class="flex items-center">
         <label class="inline-flex items-center cursor-pointer capitalize mx-2">
@@ -73,7 +74,7 @@
     </div>
 
     <div>
-      <div class="min-h-[360px] max-h-[360px] overflow-hidden">
+      <div class="min-h-[300px] max-h-[300px] overflow-hidden">
         <TableLoader v-if="loading && !firstMount" class="max-h-[400px]" />
         <div v-if="!firstMount && !loading" class="max-h-[400px] overflow-scroll w-full">
           <table class="bg-white border border-gray-300 text-sm w-full">
@@ -142,18 +143,25 @@
               </tr>
             </tbody>
           </table>
+
+          <div
+            v-if="filteredParkingSessions?.length === 0 && !loading"
+            class="flex justify-center items-center h-40"
+          >
+            <p class="text-gray-400">No items to display , try changing your search criteria</p>
+          </div>
         </div>
       </div>
-      <div class="my-4 flex justify-end">
+      <div class="my-4 mx-0 flex justify-center relative">
         <Pagination
           @nextPage="store.nextPage"
           @previousPage="store.previousPage"
           :currentPage="store.currentPage"
           :isLastPage="isLastPage"
         />
-        <div class="inline-flex items-end">
+        <div class="right-0 top-0 z-0 absolute">
           <select
-            class="mx-4 border border-gray-300 rounded-md px-2 py-1"
+            class="border border-gray-300 rounded-md px-2 py-1"
             v-model="totalDisplay"
             @change="() => store.updateLimit(totalDisplay)"
           >
@@ -174,15 +182,18 @@ import { storeToRefs } from 'pinia'
 import useSessionsStore from '@/stores/sessionsStore'
 import TableLoader from './TableLoader.vue'
 import Pagination from './Pagination.vue'
+import Button from '@/components/Button.vue'
 import { useDateFormat } from '@/composables/useDateFormat'
 import Indicator from '@/components/Indicator.vue'
 import type { ParkingSession } from '@/services/sessionService'
+
+type VahiculeSelection = 'cars' | 'motorcycles' | 'all'
 
 const store = useSessionsStore()
 const firstMount = ref<boolean>(true)
 const activeSessionsOnly = ref<boolean>(false)
 const visitorsOnly = ref<boolean>(false)
-const vehiculeType = ref('')
+const vehiculeType = ref<VahiculeSelection>('all')
 const {
   loading,
   activeSessions,

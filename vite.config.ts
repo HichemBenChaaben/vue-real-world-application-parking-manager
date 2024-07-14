@@ -12,8 +12,11 @@ export default defineConfig({
     proxy: {
       '/v1': {
         target: 'http://localhost:3000', // Proxy requests to our express server
-        changeOrigin: true,
-        ws: true
+        changeOrigin: true
+      },
+      '/auth': {
+        target: 'http://localhost:3000', // Proxy requests to our express server
+        changeOrigin: true
       }
     }
   },

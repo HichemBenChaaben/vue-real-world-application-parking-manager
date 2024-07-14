@@ -4,6 +4,7 @@ import NotFoundView from '@/views/NotFoundView.vue'
 import LoginView from '@/views/LoginView.vue'
 import DashboardLayout from '@/Layouts/DashboardLayout.vue'
 import useLoginStore from '@/stores/authStore'
+import { storeToRefs } from 'pinia'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,9 +41,9 @@ const router = createRouter({
           }
         },
         {
-          path: '/dashboard/analytics',
-          name: 'analytics',
-          component: () => import('../views/AnalyticsView.vue'),
+          path: '/dashboard/create',
+          name: 'createSession',
+          component: () => import('../views/CreateSession.vue'),
           meta: {
             requiresAuth: true
           }
@@ -67,13 +68,13 @@ const router = createRouter({
 // Check if the route requires authentication
 // if the user is not authenticated, redirect to the login page
 router.beforeEach((to, from, next) => {
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
-    const store = useLoginStore()
-    if (store.isAuthenticated()) {
-      next()
-    } else {
-      next('/')
-    }
+  const store = useLoginStore()
+  const { isAuthenticated } = storeToRefs(store)
+
+  if (to.meta.requiresAuth && !isAuthenticated.value) {
+    next('/')
+  } else if (to.path === '/' && isAuthenticated.value) {
+    next('/dashboard')
   } else {
     next()
   }

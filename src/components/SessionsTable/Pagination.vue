@@ -1,9 +1,9 @@
 <template>
-  <div class="flex justify-center items-center space-x-2">
+  <div class="flex justify-center items-center space-x-4">
     <button
       :disabled="currentPage === 1"
       @click="$emit('previousPage')"
-      class="px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-300"
+      class="px-4 py-1 bg-blue-500 text-white rounded-md disabled:bg-gray-300"
     >
       Previous
     </button>
@@ -11,7 +11,7 @@
     <button
       :disabled="$props.isLastPage"
       @click="$emit('nextPage')"
-      class="px-4 py-2 bg-blue-500 text-white rounded-md disabled:bg-gray-300"
+      class="px-4 py-1 bg-blue-500 text-white rounded-md disabled:bg-gray-300"
     >
       Next
     </button>
@@ -31,7 +31,7 @@ withDefaults(defineProps<Props>(), {
   isLastPage: false
 })
 
-defineEmits(['nextPage', 'previousPage'])
+defineEmits(['nextPage', 'previousPage', 'setPage'])
 </script>
 
 <style scoped></style>

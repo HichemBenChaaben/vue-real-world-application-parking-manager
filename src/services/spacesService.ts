@@ -6,7 +6,7 @@ export type ParkingSessionGetResponse = {
 }
 
 export type ParkingSpace = {
-  readonly parkingSpaceID: number
+  readonly parkingSpaceId: number
   readonly isOccupied: boolean
   readonly occupancy: number
   readonly capacity: number

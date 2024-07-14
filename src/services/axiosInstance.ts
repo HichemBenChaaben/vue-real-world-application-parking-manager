@@ -1,3 +1,4 @@
+import router from '@/router'
 import axios, {
   type AxiosInstance,
   type AxiosResponse,
@@ -42,11 +43,11 @@ axiosInstance.interceptors.response.use(
     if (axios.isCancel(error)) {
       cancelTokens.delete(error?.config?.url!)
     }
-
     // Redirect to the login page if the user is not authorised
     // example the session expires while the user is still logged in in the frontend
     if (error.response && error.response.status === 401) {
-      window.location.href = '/'
+      // window.location.href = '/'
+      // router.push('/')
     }
     return Promise.reject(error)
   }

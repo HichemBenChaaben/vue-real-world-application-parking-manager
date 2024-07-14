@@ -1,5 +1,4 @@
-import { vi } from 'vitest'
-import { describe, it, expect, beforeEach } from 'vitest'
+import { vi, describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import OnlineStatus from './OfflineIndicator.vue'
 
@@ -9,7 +8,7 @@ const navigatorMock = vi.fn(() => ({
 
 vi.stubGlobal('navigator', navigatorMock)
 
-describe('OnlineStatus', () => {
+describe('OnlineStatus Component', () => {
   it('displays offline message when offline', async () => {
     const wrapper = mount(OnlineStatus)
 

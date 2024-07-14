@@ -12,22 +12,29 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const PORT = 3000
 
-app.use(cors())
 app.use(cookieParser())
+app.use(cors())
 app.use(express.json())
-
-app.use(express.static(path.join(__dirname, '../dist')))
 
 app.use(
   '/v1',
   createProxyMiddleware({
     target: 'https://parkdemeer-afde952e3fef.herokuapp.com/v1',
     changeOrigin: true,
-    selfHandleResponse: false,
-    logger: console,
+    xfwd: true,
     on: {
-      proxyReq: (proxyReq, req) => {
-        proxyReq.setHeader('Authorization', `Bearer ${req.cookies['accessToken']}`)
+      proxyReq: (proxyReq, req, res) => {
+        if (req.body) {
+          // parsers messes up the request body, need to restream it
+          let bodyData = JSON.stringify(req.body)
+          console.log('Proxy request:', req.method, req.url)
+          proxyReq.setHeader('Content-Type', 'application/json')
+          proxyReq.setHeader('Accept', 'application/json')
+          proxyReq.setHeader('Authorization', `Bearer ${req.cookies['accessToken']}`)
+          proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData))
+          // stream the content
+          proxyReq.write(bodyData)
+        }
       }
     },
     onError: (err, req, res) => {
@@ -36,6 +43,18 @@ app.use(
     }
   })
 )
+
+app.use(express.static(path.join(__dirname, '../dist')))
+
+app.all('*', function (req, res, next) {
+  res.set({
+    'X-Frame-Options': 'DENY',
+    'Cache-control': 'no-store',
+    Pragma: 'no-cache',
+    'Strict-Transport-Security': 'max-age=' + 365 * 24 * 60 * 60 // 365 days, in seconds
+  })
+  next()
+})
 
 app.post('/auth/login', (req, res) => {
   axios

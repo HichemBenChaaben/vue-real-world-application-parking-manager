@@ -24,7 +24,7 @@ interface Props {
 }
 const props = defineProps<Props>()
 
-const buttonClasses = computed(() => {
+const buttonClasses = computed((): string => {
   let sizeClass = 'px-4 py-2'
   switch (props.size) {
     case 'xs':

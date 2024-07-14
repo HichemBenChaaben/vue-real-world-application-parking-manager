@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import PublicLayout from '@/Layouts/PublicLayout.vue'
-import NotFoundView from '@/views/NotFoundView.vue'
 import LoginView from '@/views/LoginView.vue'
 import DashboardLayout from '@/Layouts/DashboardLayout.vue'
 import useLoginStore from '@/stores/authStore'
@@ -26,14 +25,14 @@ const router = createRouter({
       children: [
         {
           path: '',
-          name: 'dashboard',
+          name: 'overview',
           component: () => import('../views/DashboardView.vue'),
           meta: {
             requiresAuth: true
           }
         },
         {
-          path: '/dashboard/revenue',
+          path: 'revenue',
           name: 'revenue',
           component: () => import('../views/RevenueView.vue'),
           meta: {
@@ -41,7 +40,7 @@ const router = createRouter({
           }
         },
         {
-          path: '/dashboard/create',
+          path: 'create',
           name: 'createSession',
           component: () => import('../views/CreateSession.vue'),
           meta: {
@@ -50,24 +49,9 @@ const router = createRouter({
         }
       ]
     }
-    // todo fixme
-    // {
-    //   path: '/:pathMatch(.*)*',
-    //   name: 'NotFound',
-    //   component: PublicLayout,
-    //   children: [
-    //     {
-    //       path: '',
-    //       name: 'notfound',
-    //       component: NotFoundView
-    //     }
-    //   ]
-    // }
   ]
 })
 
-// Check if the route requires authentication
-// if the user is not authenticated, redirect to the login page
 router.beforeEach((to, from, next) => {
   const store = useLoginStore()
   const { isAuthenticated } = storeToRefs(store)

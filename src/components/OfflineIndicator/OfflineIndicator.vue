@@ -1,5 +1,7 @@
 <template>
-  <div v-if="!isOnline" class="offline-indicator">You are offline</div>
+  <div v-if="!isOnline" class="offline-indicator">
+    <slot>You are offline</slot>
+  </div>
 </template>
 
 <script setup lang="ts">

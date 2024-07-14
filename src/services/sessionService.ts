@@ -57,3 +57,27 @@ export async function endSession(
     }
   })
 }
+
+export interface ParkingSessionCreateParams {
+  vehicleType: VehiculeType
+  isResident: boolean
+  vehicleLicensePlate: string
+}
+export interface StartedSession {
+  readonly parkingSessionId: string
+  readonly parkingSpaceId: number
+  readonly sessionStartedAt: Date
+  readonly vehicleLicensePlate: string
+}
+export interface StartSessionResponse {
+  startedSession: readonly StartedSession[]
+}
+export async function startSession(
+  params: ParkingSessionCreateParams
+): Promise<AxiosResponse<{ data: StartSessionResponse }>> {
+  console.log('params', params)
+  console.log('creating a post request....', { parkingSession: params })
+  return axiosInstance.post(`/v1/parking/session/start`, {
+    parkingSession: params
+  })
+}

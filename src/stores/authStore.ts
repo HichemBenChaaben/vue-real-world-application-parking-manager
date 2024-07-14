@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import api from '@/services/api'
 import { defineStore } from 'pinia'
 import axios, { AxiosError } from 'axios'

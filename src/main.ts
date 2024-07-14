@@ -17,8 +17,6 @@ app.use(router)
 async function initialize() {
   const store = useLoginStore()
   await store.getMe()
-
-  // Redirect based on authentication status before mounting the app
   if (store.isAuthenticated) {
     router.push('/dashboard')
   } else {

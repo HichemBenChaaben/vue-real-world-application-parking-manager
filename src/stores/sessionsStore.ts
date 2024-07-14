@@ -6,7 +6,8 @@ import type {
   EndParkingSession,
   ParkingSession,
   SessionListParams,
-  SessionListResponse
+  SessionListResponse,
+  ParkingSessionCreateParams
 } from '@/services/sessionService'
 import type { Maybe, TypeOrNull } from 'types'
 
@@ -188,6 +189,22 @@ const useSessionsStore = defineStore('sessions', () => {
     filteredParkingSessions.value = list
   }
 
+  const startParkingSession = async (params: ParkingSessionCreateParams): Promise<void> => {
+    try {
+      loading.value = true
+      console.log('loading =>', loading.value)
+      const res = await api.sessionsService.startSession(params)
+      console.log('respose....', res)
+    } catch (err: unknown | Error | AxiosError) {
+      if (axios.isAxiosError(err)) {
+        error.value = err.response?.data.message
+      }
+      loading.value = false
+    } finally {
+      loading.value = false
+    }
+  }
+
   // Use the state in the template or computed properties
   const filteredSessions = computed(() => filteredParkingSessions.value)
 
@@ -197,6 +214,7 @@ const useSessionsStore = defineStore('sessions', () => {
     sessionsList,
     fetchSessionList,
     endParkingSession,
+    startParkingSession,
     toggleActiveSessions,
     toggleVisitors,
     nextPage,

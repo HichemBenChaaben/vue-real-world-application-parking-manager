@@ -39,8 +39,8 @@
               v-model="vehicleType"
               class="capitalize bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             >
-              <option value="car">car</option>
-              <option value="motorcycle">motorcycle</option>
+              <option value="CAR">car</option>
+              <option value="MOTORCYCLE">motorcycle</option>
             </select>
           </div>
           <div class="py-2 flex items-center">
@@ -61,7 +61,7 @@
           <div class="py-2">
             <label class="capitalize font-semibold text-lg">Liscence plate</label>
             <input
-              v-model="licensePlate"
+              v-model="vehicleLicensePlate"
               type="text"
               id="first_name"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -70,7 +70,9 @@
             />
           </div>
           <div v-if="errorMessage" class="text-red-500">{{ errorMessage }}</div>
-          <div class="py-2 flex justify-end"><Button type="submit">create</Button></div>
+          <div class="py-2 flex justify-end">
+            <Button type="submit" :busy="loading" busyText="creating a session...">create</Button>
+          </div>
         </form>
         <div
           class="bg-blue-50 border border-1 border-solid border-blue-100 rounded-4 rounded-md p-4 mt-8"
@@ -102,33 +104,36 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
+import useSessionsStore from '@/stores/sessionsStore'
 import useSpacesStore from '@/stores/spacesStore'
 import Overview from '@/components/Overview.vue'
 import Button from '@/components/Button.vue'
 import { parkingSessionSchema, type ParkingSession } from '@/schemas/parkingSessionSchema'
 import Indicator from '@/components/Indicator.vue'
+import { type ParkingSessionCreateParams, type VehiculeType } from '@/services/sessionService'
 
 const spacesStore = useSpacesStore()
 const { spaces } = storeToRefs(spacesStore)
-
+const sessionsStore = useSessionsStore()
+const { loading } = storeToRefs(sessionsStore)
 const isResident = ref<boolean>(false)
-const licensePlate = ref<string>('')
-const vehicleType = ref<'all' | 'car' | 'motorcycle'>('car')
+const vehicleLicensePlate = ref<string>('')
+const vehicleType = ref<VehiculeType>('CAR')
 const errorMessage = ref<string | null>(null)
 
 const hourlyCharge = computed(() => {
   return isResident.value
     ? 'Free of charge'
-    : vehicleType.value === 'car'
+    : vehicleType.value.toLocaleLowerCase() === 'car'
       ? '5 euro / hour'
       : '3 euro / hour'
 })
 
 const handleSubmit = () => {
-  const formData: ParkingSession = {
+  const formData: ParkingSessionCreateParams = {
     vehicleType: vehicleType.value,
     isResident: isResident.value,
-    licensePlate: licensePlate.value
+    vehicleLicensePlate: vehicleLicensePlate.value
   }
 
   const result = parkingSessionSchema.safeParse(formData)
@@ -137,8 +142,15 @@ const handleSubmit = () => {
     errorMessage.value = result.error.errors.map((e: Error) => e.message).join(', ')
   } else {
     errorMessage.value = null
-    console.log('submit new data....', formData)
+    sessionsStore.startParkingSession(formData)
+    resetFormData()
   }
+}
+
+const resetFormData = () => {
+  isResident.value = false
+  vehicleLicensePlate.value = ''
+  vehicleType.value = 'CAR'
 }
 </script>
 

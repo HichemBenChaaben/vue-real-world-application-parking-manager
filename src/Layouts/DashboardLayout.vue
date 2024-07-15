@@ -38,11 +38,30 @@
         class="card bg-white p-4 shadow-sm border border-solid border-gray-300 sticky top-0 z-20"
       >
         <div class="flex justify-between">
-          <h1 class="font-bold">Welcome {{ user }}</h1>
+          <h1>
+            Welcome <span class="font-semibold" v-if="user?.id">{{ user?.id }}</span>
+          </h1>
 
           <OfflineIndicator />
-
-          <div>
+          <div class="flex gap-2">
+            <router-link
+              to="/dashboard/"
+              class="block lg:hidden"
+              active-class="text-blue-500 font-bold"
+            >
+              <span class="lg:hide">overview</span>
+            </router-link>
+            <router-link
+              to="/dashboard/revenue"
+              class="block lg:hidden"
+              :class="{
+                'text-blue-500 font-bold': /^\/dashboard\/?$/.test($route.path),
+                'hover:text-blue-500 block lg:hidden': true
+              }"
+              active-class="text-blue-500 font-bold"
+            >
+              <span>revenue</span>
+            </router-link>
             <button @click="handleLogout">logout</button>
           </div>
         </div>

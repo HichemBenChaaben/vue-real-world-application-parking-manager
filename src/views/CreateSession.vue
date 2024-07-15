@@ -5,7 +5,7 @@
   </Overview>
   <div class="card">
     <div class="gap-4 mb-4 pb-4 flex w-full flex-row justify-start">
-      <div>
+      <div class="hidden lg:block">
         <h2 class="text-xl font-semibold">Parking Information</h2>
         <div class="bg-gray-100 p-4 rounded-2">
           <div class="max-w-4xl mx-auto p-6">
@@ -31,7 +31,7 @@
           </div>
         </div>
       </div>
-      <div class="min-w-[600px] border-l-2 border-solid border-gray-100 px-6">
+      <div class="w-full lg:min-w-[600px] lg:border-l-2 lg:border-solid lg:border-gray-100 lg:px-6">
         <form @submit.prevent="handleSubmit" novalidate>
           <ConfettiExplosion
             v-if="showConfetti"

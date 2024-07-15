@@ -22,27 +22,8 @@
     </div>
 
     <div class="flex justify-between border boder-1 border-gray-200 p-4 mb-4">
-      <div class="flex justify-start items-center gap-4">
-        <select
-          v-model="vehiculeType"
-          @change="() => store.filterVehiculeType(vehiculeType)"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-        >
-          <option value="all">all vehicules</option>
-          <option value="car">car</option>
-          <option value="motorcycle">motorcycle</option>
-        </select>
-        <input
-          type="text"
-          id="first_name"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          placeholder="Liscence plate"
-          required
-        />
-        <Button>Search</Button>
-      </div>
       <div class="flex items-center">
-        <label class="inline-flex items-center cursor-pointer capitalize mx-2">
+        <label class="inline-flex items-center cursor-pointer capitalize mx-2 min-w-[160px]">
           <input
             type="checkbox"
             class="sr-only peer"
@@ -56,7 +37,7 @@
             >all sessions</span
           >
         </label>
-        <label class="inline-flex items-center cursor-pointer capitalize mx-2">
+        <label class="inline-flex items-center cursor-pointer capitalize mx-2 min-w-[160px]">
           <input
             type="checkbox"
             class="sr-only peer"
@@ -70,6 +51,27 @@
             visitors only
           </span>
         </label>
+        <select
+          v-model="vehiculeType"
+          @change="() => store.filterVehiculeType(vehiculeType)"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option value="all">all vehicules</option>
+          <option value="car">car</option>
+          <option value="motorcycle">motorcycle</option>
+        </select>
+      </div>
+      <div class="flex justify-start items-center gap-2">
+        <input type="date" min="2023-01-01" max="2024-12-31" />
+        <input type="date" min="2023-01-01" max="2024-12-31" />
+        <input
+          type="text"
+          id="first_name"
+          class="w-[200px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="Liscence plate"
+          required
+        />
+        <Button>Search</Button>
       </div>
     </div>
 
@@ -130,11 +132,11 @@
                     :disabled="parkingSessionIdBusy === session.parkingSessionId"
                     v-if="!session.isSessionEnded"
                     @click="handleEndSession(session)"
-                    class="bg-white text-red-600 rounded text-xs px-2 py-1 hover:bg-red-600 hover:text-white hover:border-white border border-1 font-semibold"
+                    class="capitalize bg-white text-red-600 text-xs px-2 py-1 hover:bg-red-600 hover:text-white rounded-md hover:border-white border border-1 font-semibold"
                   >
                     {{
                       parkingSessionIdBusy === session.parkingSessionId
-                        ? 'loading...'
+                        ? 'ending session...'
                         : 'end session'
                     }}
                   </button>
@@ -152,7 +154,7 @@
           </div>
         </div>
       </div>
-      <div class="my-4 mx-0 flex justify-center relative">
+      <div class="mt-4 mx-0 flex justify-center relative">
         <Pagination
           @nextPage="store.nextPage"
           @previousPage="store.previousPage"

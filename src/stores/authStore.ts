@@ -3,16 +3,15 @@ import api from '@/services/api'
 import { defineStore } from 'pinia'
 import axios, { AxiosError } from 'axios'
 import router from '@/router'
+import type { Maybe } from 'types'
 
-interface LoginState {
-  loading: boolean
-  error: string | null
-  cookie: string | null
+export type User = {
+  readonly id?: string
+  readonly email?: string
 }
 
 export type UserProfile = {
   readonly user?: User
-  readonly auth?: Auth
 }
 
 export type Auth = {
@@ -20,39 +19,30 @@ export type Auth = {
   readonly expiresIn?: number
 }
 
-export type User = {
-  readonly id?: string
-  readonly email?: string
-}
-
 const useLoginStore = defineStore(
   'login',
   () => {
-    /** State */
     const loading = ref(false)
     const error = ref('')
     const isAuthenticated = ref(false)
 
-    const user = ref<UserProfile | null>({
+    const user = ref<Maybe<UserProfile>>({
       user: {
         id: undefined,
         email: undefined
-      },
-      auth: {
-        accessToken: undefined,
-        expiresIn: undefined
       }
     })
 
     /** Actions */
     const setUser = (userResponse: UserProfile) => {
-      user.value = userResponse.data
+      user.value = userResponse.user
     }
 
     const login = async (credentials: { email: string; password: string }): Promise<void> => {
       try {
         loading.value = true
         const response = await api.loginService.login(credentials)
+        setUser(response.data.data)
         if (response.status === 200) {
           isAuthenticated.value = true
           await getMe()
@@ -68,7 +58,7 @@ const useLoginStore = defineStore(
     }
 
     const getMe = async (): Promise<void> => {
-      if (isAuthenticated.value === true) {
+      if (isAuthenticated.value) {
         return
       }
       try {
@@ -77,7 +67,6 @@ const useLoginStore = defineStore(
           data: { data }
         } = await api.loginService.me()
         setUser(data)
-
         if (data.user?.email) {
           isAuthenticated.value = true
         }

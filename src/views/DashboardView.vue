@@ -8,12 +8,10 @@
 
       <div class="flex items-end">
         <router-link to="/dashboard/create">
-          <button
-            class="bg-indigo-600 border border-1 border-indigo-800 hover:bg-indigo-400 font-semibold text-white rounded rounded-1 px-4 py-1 color-white capitalize"
-          >
+          <Button variant="primary">
             <i class="fas fa-plus"></i>
             <span class="pl-2">new session</span>
-          </button>
+          </Button>
         </router-link>
       </div>
     </div>
@@ -23,59 +21,65 @@
 
     <div class="overview-cards">
       <div class="overview-card">
-        <div class="flex justify-between">
-          <h2 class="capitalise"><i class="fas fa-car"></i>{{ cars?.vehicleType }}</h2>
-          <div>
-            <Indicator v-if="!cars?.isOccupied" variant="success"> Available </Indicator>
+        <div v-if="!loading">
+          <div class="flex justify-between">
+            <h2 class="capitalise"><i class="fas fa-car"></i>{{ cars?.vehicleType }}</h2>
+            <div>
+              <Indicator v-if="!cars?.isOccupied" variant="success"> Available </Indicator>
+            </div>
           </div>
-        </div>
-        <div class="flex flex-between items-top justify-center">
-          <div class="w-1/2 pt-2 text-md color-gray-400 capitalize">
-            <p>
-              occupancy: <span class="font-semibold">{{ cars?.occupancy }}</span>
-            </p>
-            <p>
-              capacity <span class="font-semibold">{{ cars?.capacity }}</span>
-            </p>
-            <p>
-              free <span class="font-semibold">{{ cars?.capacity - cars?.occupancy }}</span>
-            </p>
-          </div>
+          <div class="flex flex-between items-top justify-center">
+            <div class="w-1/2 pt-2 text-md color-gray-400 capitalize">
+              <p>
+                occupancy: <span class="font-semibold">{{ cars?.occupancy }}</span>
+              </p>
+              <p>
+                capacity <span class="font-semibold">{{ cars?.capacity }}</span>
+              </p>
+              <p>
+                free <span class="font-semibold">{{ cars?.capacity - cars?.occupancy }}</span>
+              </p>
+            </div>
 
-          <div class="w-1/2 h-[220px] flex justify-end items-end">
-            <DaughnutChart :data="config" />
+            <div class="w-1/2 h-[220px] flex justify-end items-end">
+              <DaughnutChart :data="config" />
+            </div>
           </div>
         </div>
+        <div v-else class="h-full animate-pulse bg-gray-100"></div>
       </div>
       <div class="overview-card">
-        <div class="flex justify-between">
-          <h2 class="capitalise">
-            <i class="fas fa-motorcycle"></i>{{ motorcycles?.vehicleType }}
-          </h2>
-          <div>
-            <Indicator v-if="!motorcycles?.isOccupied" variant="success"> Available </Indicator>
+        <div v-if="!loading">
+          <div class="flex justify-between">
+            <h2 class="capitalise">
+              <i class="fas fa-motorcycle"></i>{{ motorcycles?.vehicleType }}
+            </h2>
+            <div>
+              <Indicator v-if="!motorcycles?.isOccupied" variant="success"> Available </Indicator>
+            </div>
           </div>
-        </div>
-        <div class="flex flex-between items-top justify-center">
-          <div class="w-1/2 pt-2 text-md color-gray-400 capitalize">
-            <p>
-              occupancy: <span class="font-semibold">{{ motorcycles?.occupancy }}</span>
-            </p>
-            <p>
-              capacity <span class="font-semibold">{{ motorcycles?.capacity }}</span>
-            </p>
-            <p>
-              free
-              <span class="font-semibold">{{
-                motorcycles?.capacity - motorcycles?.occupancy
-              }}</span>
-            </p>
-          </div>
+          <div class="flex flex-between items-top justify-center">
+            <div class="w-1/2 pt-2 text-md color-gray-400 capitalize">
+              <p>
+                occupancy: <span class="font-semibold">{{ motorcycles?.occupancy }}</span>
+              </p>
+              <p>
+                capacity <span class="font-semibold">{{ motorcycles?.capacity }}</span>
+              </p>
+              <p>
+                free
+                <span class="font-semibold">{{
+                  motorcycles?.capacity - motorcycles?.occupancy
+                }}</span>
+              </p>
+            </div>
 
-          <div class="w-1/2 h-[220px] flex justify-end items-end">
-            <DaughnutChart :data="configMotorcycles" />
+            <div class="w-1/2 h-[220px] flex justify-end items-end">
+              <DaughnutChart :data="configMotorcycles" />
+            </div>
           </div>
         </div>
+        <div v-else class="h-full animate-pulse bg-gray-100"></div>
       </div>
     </div>
   </div>
@@ -90,12 +94,13 @@ import DaughnutChart, { type Data } from '@/components/DaughnutChart.vue'
 import SessionsTable from '@/components/SessionsTable/SessionsTable.vue'
 import Indicator from '@/components/Indicator.vue'
 import useLoginStore from '@/stores/authStore'
+import Button from '@/components/Button.vue'
 
 const authStore = useLoginStore()
 const { user, isAuthenticated } = storeToRefs(authStore)
 
 const store = useSpacesStore()
-const { motorcycles, cars } = storeToRefs(store)
+const { motorcycles, cars, loading } = storeToRefs(store)
 
 const limit = 100
 const offset = 1
@@ -135,7 +140,7 @@ const config = computed((): Data => {
   @apply my-2 flex flex-col md:grid md:grid-cols-2 gap-4 w-full;
 }
 .overview-card {
-  @apply p-6 rounded overflow-hidden shadow-sm border border-solid border-gray-300 bg-white w-full;
+  @apply p-5 rounded overflow-hidden shadow-sm border border-solid border-gray-300 bg-white w-full;
   h2 {
     @apply font-semibold text-xl inline-flex justify-center items-center;
     i {

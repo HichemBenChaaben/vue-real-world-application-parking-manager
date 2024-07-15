@@ -6,15 +6,6 @@
   @apply my-2 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
 }
 
-.btn {
-  @apply p-2 bg-green-600 text-white font-semibold rounded my-4 items-start;
-  &:hover {
-    @apply bg-green-800 border-green-700 text-white font-semibold;
-  }
-  &:disabled {
-    @apply bg-slate-300;
-  }
-}
 .error {
   @apply border border-solid border-red-500 text-red-600;
 }

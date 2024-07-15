@@ -16,7 +16,6 @@ describe('useDateFormat composable', () => {
     const { formatDate } = useDateFormat()
     const formattedDate = formatDate(dateString)
 
-    // Assuming desired behavior for string input, you might need adjustments
     expect(formattedDate).toBe(format(new Date(dateString), 'MMMM do, yyyy HH:mm'))
   })
 
@@ -40,8 +39,6 @@ describe('useDateFormat composable', () => {
   it('handles invalid date input', () => {
     const invalidDate = 'invalid-date'
     const { formatDate } = useDateFormat()
-
-    // Expect a specific error or default behavior here
     expect(() => formatDate(invalidDate)).toThrow()
   })
 })

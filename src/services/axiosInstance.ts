@@ -1,10 +1,10 @@
-import router from '@/router'
 import axios, {
   type AxiosInstance,
   type AxiosResponse,
   AxiosError,
   type CancelTokenSource
 } from 'axios'
+import useAuthStore from '@/stores/authStore'
 
 // Create a single instance of Axios
 const axiosInstance: AxiosInstance = axios.create({
@@ -46,8 +46,8 @@ axiosInstance.interceptors.response.use(
     // Redirect to the login page if the user is not authorised
     // example the session expires while the user is still logged in in the frontend
     if (error.response && error.response.status === 401) {
-      // window.location.href = '/'
-      // router.push('/')
+      const authStore = useAuthStore()
+      authStore.isAuthenticated = false
     }
     return Promise.reject(error)
   }

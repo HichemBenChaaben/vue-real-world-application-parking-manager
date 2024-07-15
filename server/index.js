@@ -48,10 +48,10 @@ app.use(express.static(path.join(__dirname, '../dist')))
 
 app.all('*', function (req, res, next) {
   res.set({
-    'X-Frame-Options': 'DENY',
+    'X-Frame-Options': 'DENY', // prevent clickjacking
     'Cache-control': 'no-store',
     Pragma: 'no-cache',
-    'Strict-Transport-Security': 'max-age=' + 365 * 24 * 60 * 60 // 365 days, in seconds
+    'Strict-Transport-Security': 'max-age=' + 365 * 24 * 60 * 60 // 365 days, in seconds, prevent downgrading attacks
   })
   next()
 })

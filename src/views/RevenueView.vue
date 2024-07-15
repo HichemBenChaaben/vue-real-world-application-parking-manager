@@ -11,64 +11,73 @@
         >
           <span class="p-0 text-sm mr-2">
             total realised profit
-            <strong>
-              {{
-                Intl.NumberFormat('nl-nl', {
-                  currency: 'EUR',
-                  style: 'currency',
-                  maximumFractionDigits: 0,
-                  minimumFractionDigits: 0
-                }).format(aggregateParkingHours.cars * 5 || 0)
-              }}
-              cars
-            </strong>
+            <strong> ---- cars </strong>
           </span>
           <span class="p-0 text-sm mr-2">
             total realised profit
-            <strong>
-              {{
-                Intl.NumberFormat('nl-nl', {
-                  currency: 'EUR',
-                  style: 'currency',
-                  maximumFractionDigits: 0,
-                  minimumFractionDigits: 0
-                }).format(aggregateParkingHours.cars * 3 || 0)
-              }}
-              motorcycles
-            </strong>
+            <strong> --- motorcycles </strong>
           </span>
         </div>
       </div>
     </div>
     <div class="flex w-full flex-col card">
-      <h2 class="text-2xl">Revenue per session</h2>
-      <br />
+      <div class="flex justify-between border boder-1 border-gray-200 p-4 mb-4">
+        <div class="flex items-center">
+          <div class="capitalize">
+            showing
+            <span class="mx-1 text-md font-semibold">{{ state?.totalSessions }}</span>
+            session{{ (state?.sessions || []).length > 1 ? 's' : '' }}
+          </div>
+        </div>
+        <div class="min-w-[200px]">
+          <select
+            v-model="vehiculeTypeFilter"
+            @change="() => setVehiculeTypeFilter()"
+            class="w-full capitalize bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          >
+            <option value="all">all vehicles</option>
+            <option value="CAR">car</option>
+            <option value="MOTOR">motorcycle</option>
+          </select>
+        </div>
+      </div>
+
       <div class="max-h-[400px] overflow-scroll w-full">
-        <table v-if="!sessionStoreLoading" class="bg-white border border-gray-300 text-sm w-full">
+        <table v-if="!loading" class="bg-white border border-gray-300 text-sm w-full revenue-table">
           <thead
             class="sticky z-10 top-[-1px] border-t-1 border-gray-200 z-99 bg-white border-collapse py-2"
           >
             <tr>
-              <th class="py-2 px-4 border-b text-left">Start Time</th>
-              <th class="text-center py-2 px-4 border-b">End Time</th>
-              <th class="text-right py-2 px-4 border-b">
-                Duration <span class="text-xs text-gray-600">(minutes)</span>
+              <th class="py-2 px-4 border-b text-left cursor-pointer">
+                <button @click="handleSetSortingKey('sessionStartedAt')">Start Time</button>
               </th>
-              <th class="text-right py-2 px-4 border-b">Liscence</th>
-              <th class="text-right py-2 px-4 border-b">Vehicule</th>
+              <th class="text-right py-2 px-4 border-b" width="210px">
+                <button @click="handleSetSortingKey('sessionEndedAt')">End time</button>
+              </th>
+              <th class="text-right py-2 px-4 border-b">
+                <button @click="handleSetSortingKey('sessionLengthInHoursMinutes')">
+                  Duration <span class="text-xs text-gray-600">(minutes)</span>
+                </button>
+              </th>
+              <th class="text-right py-2 px-4 border-b">
+                <button @click="handleSetSortingKey('vehicleLicensePlate')">Liscence plate</button>
+              </th>
+              <th class="text-right py-2 px-4 border-b">
+                <button @click="handleSetSortingKey('vehicleType')">Vehicle</button>
+              </th>
               <th class="text-right py-2 px-4 border-b">Realised profit</th>
             </tr>
           </thead>
           <tbody class="body-row">
             <tr
-              v-for="session in nonResidentSessionList"
+              v-for="session in state?.sessions"
               :key="session.parkingSessionId"
               class="text-right"
             >
               <td class="text-left py-2 px-4 border-b">
                 {{ formatDate(session.sessionStartedAt) }}
               </td>
-              <td class="text-center py-2 px-4 border-b">
+              <td class="text-right py-2 px-4 border-b">
                 {{ formatDate(session.sessionEndedAt) }}
               </td>
               <td class="text-right py-2 px-4 border-b">
@@ -84,8 +93,8 @@
                       currency: 'EUR'
                     }).format(
                       session.vehicleType === 'CAR'
-                        ? session?.sessionLengthInHoursMinutes * 5
-                        : session?.sessionLengthInHoursMinutes * 3
+                        ? (session?.sessionLengthInHoursMinutes / 60) * 5
+                        : (session?.sessionLengthInHoursMinutes / 60) * 3
                     )
                   }}
                 </span>
@@ -93,29 +102,27 @@
             </tr>
           </tbody>
         </table>
-
-        <!-- aggregate -->
         <div
           class="hide flex justify-center items-center h-40"
-          v-if="nonResidentSessionList.length === 0"
+          v-if="state?.sessions?.length === 0"
         >
           <p class="text-gray-400">No items to display , try changing your search criteria</p>
         </div>
       </div>
-      <div class="flex justify-end items-end py-2 mt-4">
-        <span class="text-md">Total Aggregate</span>
+      <div class="flex justify-end items-center py-2 mt-4" v-if="state?.aggregate.cars.revenue">
+        <span class="text-xs">Total Aggregate</span>
         <span class="text-md font-semibold px-2">
           {{
             Intl.NumberFormat('nl-nl', {
               style: 'currency',
               currency: 'EUR'
-            }).format(totalRealisedProfitAgg) ?? 'N/A'
+            }).format(state.aggregate.cars.revenue + state.aggregate.motorcycles.revenue) ?? 'N/A'
           }}
         </span>
       </div>
     </div>
 
-    <div class="sm:grid sm:grid-cols-2 gap-4 mb-4 pb-4 flex w-full flex-col mt-4">
+    <div class="sm:grid sm:grid-cols-2 gap-4 mb-4 pb-4 flex w-full flex-col mt-4" v-if="false">
       <div class="w-full">
         <div class="card" v-if="loading === false">
           <BarChart :dataSets="dataSets" v-if="aggregateParkingHours" />
@@ -137,39 +144,57 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch } from 'vue'
 import Overview from '@/components/Overview.vue'
 import BarChart from '@/components/BarChart/BarChart.vue'
 import { storeToRefs } from 'pinia'
 import useRevenueStore from '@/stores/revenueStore'
-import useSessionsStore from '@/stores/sessionsStore'
 import { useDateFormat } from '@/composables/useDateFormat'
-import type { ParkingSession } from '@/services/spacesService'
-import type { VehiculeType } from '@/services/sessionService'
+import type { ParkingSession, VehiculeType } from '@/services/sessionService'
+import type { TypeOrNull } from 'types'
+
+type VehiculeTypeSelection = 'all' | 'CAR' | 'MOTORCYCLE'
+
+const { formatDate } = useDateFormat()
 
 const store = useRevenueStore()
-const { formatDate } = useDateFormat()
-const { loading, aggregateParkingHours } = storeToRefs(store)
-const sessionsStore = useSessionsStore()
-const { loading: sessionStoreLoading, sessionsList } = storeToRefs(sessionsStore)
+const { loading, state } = storeToRefs(store)
 
-const nonResidentSessionList = computed(() => {
-  return sessionsList.value?.parkingSessions.filter((s) => s.parkingSpaceId !== 1) || []
-})
+const sortingKey = ref<TypeOrNull<keyof ParkingSession>>(null)
+const sortingOrder = ref<string>('asc')
+const vehiculeTypeFilter = ref<VehiculeTypeSelection>('all')
+
+store.fetchSessionList()
+
+const setVehiculeTypeFilter = () => {
+  store.filterByVehiculeType(vehiculeTypeFilter.value)
+}
+
+/** setting the sorting key from the ui */
+const handleSetSortingKey = (param: keyof ParkingSession) => {
+  sortingOrder.value = sortingOrder.value === 'asc' ? 'desc' : 'asc'
+  sortingKey.value = param
+}
 
 const getVehiculeHourlyRate = (vehiculeType: VehiculeType) => {
   const carHourlyParkingRate = 5
   const motorcycleHourlyParkingRate = 5
   return vehiculeType === 'CAR' ? carHourlyParkingRate : motorcycleHourlyParkingRate
 }
-const totalRealisedProfitAgg = computed(() => {
-  return nonResidentSessionList.value.reduce(
-    (agg, curr) =>
-      curr.sessionLengthInHoursMinutes * getVehiculeHourlyRate(curr.vehicleType as VehiculeType) +
-      agg,
-    0
-  )
-})
+
+const mninuteToHours = (h: number) => {
+  return Math.ceil(h / 60) < 1 ? 1 : Math.ceil(h / 60)
+}
+
+// const totalRealisedProfitAgg = computed(() => {
+//   return nonResidentSessionList.value.reduce(
+//     (agg, curr) =>
+//       mninuteToHours(curr.sessionLengthInHoursMinutes) *
+//         getVehiculeHourlyRate(curr.vehicleType as VehiculeType) +
+//       agg,
+//     0
+//   )
+// })
 
 const currentYear = new Date().getFullYear()
 const januaryStart = new Date(currentYear, 0, 1) // January 1st of the current year
@@ -181,25 +206,19 @@ const dataSets = ref({
     {
       label: 'revenue in euros',
       backgroundColor: ['indigo', 'blue'],
-      data: Object.values(aggregateParkingHours.value)
+      data: {}
     }
   ]
 })
-store.fetchSessionListIfNeeded({
-  offset: 0,
-  isSessionEnded: true,
-  sessionStartedAtFrom: januaryStart.toISOString(),
-  sessionEndedAtTo: today.toISOString()
-})
-watch(
-  () => aggregateParkingHours.value,
-  () => {
-    dataSets.value.datasets[0].data = Object.values(aggregateParkingHours.value)
-  }
-)
 </script>
 <style scoped>
 .card {
   @apply p-6 rounded overflow-hidden shadow-sm border border-solid border-gray-300 bg-white w-full min-h-[300px] md:min-h-[400px];
+}
+
+table {
+  tbody > tr {
+    @apply hover:bg-blue-50;
+  }
 }
 </style>

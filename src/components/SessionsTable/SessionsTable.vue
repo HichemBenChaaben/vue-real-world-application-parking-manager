@@ -13,10 +13,13 @@
           <span class="font-semibold text-gray-600">
             {{ sessionsList?.parkingSessionsTotalCount }}
           </span>
-          sessions
+          total sessions
         </div>
         <div>
-          <span>in view {{ activeSessions }} active</span>
+          <Indicator variant="primary" v-if="filteredParkingSessions?.length">
+            showing <strong class="mx-1">{{ filteredParkingSessions.length }}</strong> sessions
+          </Indicator>
+          <span v-else class="my-2">no active sessions in the view</span>
         </div>
       </div>
     </div>
@@ -56,7 +59,7 @@
           @change="() => store.filterVehiculeType(vehiculeType)"
           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         >
-          <option value="all">all vehicules</option>
+          <option value="all">all vehicles</option>
           <option value="car">car</option>
           <option value="motorcycle">motorcycle</option>
         </select>
@@ -85,13 +88,13 @@
             >
               <tr>
                 <th class="py-2 px-4 border-b text-left">Parking Id</th>
-                <th class="py-2 px-4 border-b text-left">Start Time</th>
-                <th class="text-center py-2 px-4 border-b">End Time</th>
+                <th class="py-2 px-4 border-b text-left w-[200px]">Start Time</th>
+                <th class="text-right py-2 px-4 border-b">End Time</th>
                 <th class="text-right py-2 px-4 border-b">
                   Duration <span class="text-xs text-gray-600">(minutes)</span>
                 </th>
                 <th class="text-right py-2 px-4 border-b">Liscence</th>
-                <th class="text-right py-2 px-4 border-b">Vehicule</th>
+                <th class="text-right py-2 px-4 border-b">Vehicle</th>
                 <th class="text-right py-2 px-4 border-b">&nbsp;</th>
               </tr>
             </thead>
@@ -113,7 +116,7 @@
                 <td class="py-2 px-4 border-b text-left">
                   {{ formatDate(session.sessionStartedAt) }}
                 </td>
-                <td class="text-center py-2 px-4 border-b">
+                <td class="text-right py-2 px-4 border-b">
                   {{ formatDate(session.sessionEndedAt) }}
                 </td>
                 <td class="text-right py-2 px-4 border-b font-semibold text-gray-600 font-italic">

@@ -18,11 +18,6 @@ interface SessionListParamsExtended {
   visitorsOnly: TypeOrNull<boolean>
 }
 
-/** filters to support frontend filtering */
-enum Filter {
-  ActiveVisitor = 'ACTIVE_VISITORS'
-}
-
 const useSessionsStore = defineStore('sessions', () => {
   const loading = ref<boolean>(false)
   const error = ref<TypeOrNull<string>>(null)
@@ -144,7 +139,6 @@ const useSessionsStore = defineStore('sessions', () => {
   watch(
     () => filters.value.limit,
     (newValue, oldValue) => {
-      console.log('limit changed', newValue)
       if (newValue !== oldValue && newValue && oldValue) {
         if (newValue > oldValue) {
           fetchSessionList(filters.value)

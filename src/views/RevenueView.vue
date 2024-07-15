@@ -5,17 +5,37 @@
         <template #title> revenue </template>
         <template #line> Revenue of all ended sessions since 1st January </template>
       </Overview>
-      <div class="flex justify-end flex-col text-end">
+      <div class="flex justify-end flex-row text-end gap-4">
         <div
-          class="bg-blue-50 rounded-md p-2 text-blue-800 m-1 flex flex-col px-4 py-2 mb-2 border boder-solid border-blue-400"
+          class="bg-blue-50 rounded-md p-2 text-blue-800 m-1 flex flex-col px-2 py-2 mb-2 border boder-solid border-blue-400"
         >
-          <span class="p-0 text-sm mr-2">
-            total realised profit
-            <strong> ---- cars </strong>
+          <span class="p-0 text-sm mr-2 flex justify-between gap-4">
+            cars
+            <TextLoader v-if="loading" />
+            <strong v-else> {{ state?.aggregate.cars.sessions }} sessions </strong>
           </span>
-          <span class="p-0 text-sm mr-2">
-            total realised profit
-            <strong> --- motorcycles </strong>
+          <span class="p-0 text-sm mr-2 flex justify-between gap-4">
+            revenue
+            <TextLoader v-if="loading" />
+            <strong v-else>
+              {{ formatCurrency(state?.aggregate.cars.revenue as number) }}
+            </strong>
+          </span>
+        </div>
+        <div
+          class="bg-blue-50 rounded-md p-2 text-blue-800 m-1 flex flex-col px-2 py-2 mb-2 border boder-solid border-blue-400"
+        >
+          <span class="p-0 text-sm mr-2 flex justify-between gap-4">
+            motorcycles
+            <TextLoader v-if="loading" />
+            <strong v-else> {{ state?.aggregate.motorcycles.sessions }} sessions </strong>
+          </span>
+          <span class="p-0 text-sm mr-2 flex justify-between gap-4">
+            revenue
+            <TextLoader v-if="loading" />
+            <strong v-else>
+              {{ formatCurrency(state?.aggregate.motorcycles.revenue as number) }}
+            </strong>
           </span>
         </div>
       </div>
@@ -23,13 +43,14 @@
     <div class="flex w-full flex-col card">
       <div class="flex justify-between border boder-1 border-gray-200 p-4 mb-4">
         <div class="flex items-center">
-          <div class="capitalize">
+          <div class="capitalize" v-if="!loading">
             showing
             <span class="mx-1 text-md font-semibold">{{ state?.totalSessions }}</span>
             session{{ (state?.sessions || []).length > 1 ? 's' : '' }}
           </div>
+          <TextLoader v-if="loading" />
         </div>
-        <div class="min-w-[200px]">
+        <div class="min-w-[200px]" v-if="!loading">
           <select
             v-model="vehiculeTypeFilter"
             @change="() => setVehiculeTypeFilter()"
@@ -39,6 +60,9 @@
             <option value="CAR">car</option>
             <option value="MOTOR">motorcycle</option>
           </select>
+        </div>
+        <div v-else>
+          <TextLoader />
         </div>
       </div>
 
@@ -102,6 +126,7 @@
             </tr>
           </tbody>
         </table>
+        <TableLoader v-else />
         <div
           class="hide flex justify-center items-center h-40"
           v-if="state?.sessions?.length === 0"
@@ -113,27 +138,25 @@
         <span class="text-xs">Total Aggregate</span>
         <span class="text-md font-semibold px-2">
           {{
-            Intl.NumberFormat('nl-nl', {
-              style: 'currency',
-              currency: 'EUR'
-            }).format(state.aggregate.cars.revenue + state.aggregate.motorcycles.revenue) ?? 'N/A'
+            formatCurrency(state.aggregate.cars.revenue + state.aggregate.motorcycles.revenue) ??
+            'N/A'
           }}
         </span>
       </div>
     </div>
 
-    <div class="sm:grid sm:grid-cols-2 gap-4 mb-4 pb-4 flex w-full flex-col mt-4" v-if="false">
+    <div class="sm:grid sm:grid-cols-2 gap-4 mb-4 pb-4 flex w-full flex-col mt-4">
       <div class="w-full">
-        <div class="card" v-if="loading === false">
-          <BarChart :dataSets="dataSets" v-if="aggregateParkingHours" />
+        <div class="card" v-if="!loading">
+          <BarChart :dataSets="dataSets" />
         </div>
         <div class="card animate-pulse" v-else>
           <div class="h-full animate-pulse bg-gray-100"></div>
         </div>
       </div>
       <div class="w-full">
-        <div class="card" v-if="loading === false">
-          <BarChart :dataSets="dataSets" v-if="aggregateParkingHours" />
+        <div class="card" v-if="!loading">
+          <BarChart :dataSets="dataSetsSessions" />
         </div>
         <div class="card animate-pulse" v-else>
           <div class="h-full animate-pulse bg-gray-100"></div>
@@ -150,12 +173,16 @@ import BarChart from '@/components/BarChart/BarChart.vue'
 import { storeToRefs } from 'pinia'
 import useRevenueStore from '@/stores/revenueStore'
 import { useDateFormat } from '@/composables/useDateFormat'
+import { useCurrencyFormatter } from '@/composables/useFormatCurrency'
+import TableLoader from '@/components/SessionsTable/TableLoader.vue'
+import TextLoader from '@/components/TextLoader.vue'
 import type { ParkingSession, VehiculeType } from '@/services/sessionService'
 import type { TypeOrNull } from 'types'
 
-type VehiculeTypeSelection = 'all' | 'CAR' | 'MOTORCYCLE'
+type VehiculeTypeSelection = string | VehiculeType
 
 const { formatDate } = useDateFormat()
+const { formatCurrency } = useCurrencyFormatter()
 
 const store = useRevenueStore()
 const { loading, state } = storeToRefs(store)
@@ -176,40 +203,41 @@ const handleSetSortingKey = (param: keyof ParkingSession) => {
   sortingKey.value = param
 }
 
-const getVehiculeHourlyRate = (vehiculeType: VehiculeType) => {
-  const carHourlyParkingRate = 5
-  const motorcycleHourlyParkingRate = 5
-  return vehiculeType === 'CAR' ? carHourlyParkingRate : motorcycleHourlyParkingRate
-}
-
-const mninuteToHours = (h: number) => {
-  return Math.ceil(h / 60) < 1 ? 1 : Math.ceil(h / 60)
-}
-
-// const totalRealisedProfitAgg = computed(() => {
-//   return nonResidentSessionList.value.reduce(
-//     (agg, curr) =>
-//       mninuteToHours(curr.sessionLengthInHoursMinutes) *
-//         getVehiculeHourlyRate(curr.vehicleType as VehiculeType) +
-//       agg,
-//     0
-//   )
-// })
-
-const currentYear = new Date().getFullYear()
-const januaryStart = new Date(currentYear, 0, 1) // January 1st of the current year
-const today = new Date() // Today's date
-
 const dataSets = ref({
   labels: ['Car', 'Motorcycle'],
   datasets: [
     {
       label: 'revenue in euros',
-      backgroundColor: ['indigo', 'blue'],
-      data: {}
+      backgroundColor: ['indigo', 'gray'],
+      data: [state.value?.aggregate.cars.revenue, state.value?.aggregate.motorcycles.revenue]
     }
   ]
 })
+
+const dataSetsSessions = ref({
+  labels: ['Car', 'Motorcycle'],
+  datasets: [
+    {
+      label: 'sessions by vehicle',
+      backgroundColor: ['blue', 'fushia'],
+      data: [state.value?.aggregate.cars.sessions, state.value?.aggregate.motorcycles.sessions]
+    }
+  ]
+})
+
+watch(
+  () => state.value?.aggregate,
+  (newValue, oldValue) => {
+    if (newValue !== oldValue) {
+      const { cars, motorcycles } = state.value?.aggregate || { cars: {}, motorcycles: {} }
+      dataSetsSessions.value.datasets[0].data = [cars.sessions, motorcycles.sessions]
+      dataSets.value.datasets[0].data = [cars.revenue, motorcycles.revenue]
+    }
+  },
+  {
+    deep: true
+  }
+)
 </script>
 <style scoped>
 .card {

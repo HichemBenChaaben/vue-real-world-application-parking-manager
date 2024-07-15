@@ -22,7 +22,7 @@ const useSessionsStore = defineStore('sessions', () => {
   const loading = ref<boolean>(false)
   const error = ref<TypeOrNull<string>>(null)
   const sessionsList = ref<TypeOrNull<SessionListResponse>>(null)
-  const filteredParkingSessions = ref<SessionListResponse['parkingSessions'] | null>(null)
+  const filteredParkingSessions = ref<TypeOrNull<SessionListResponse['parkingSessions']>>(null)
   const currentPage = ref<number>(1)
   const parkingSessionIdBusy = ref<TypeOrNull<string>>(null)
   const sessionStarted = ref<TypeOrNull<StartSessionResponse>>(null)
@@ -52,7 +52,7 @@ const useSessionsStore = defineStore('sessions', () => {
       } = await api.sessionsService.list(params)
       sessionsList.value = data
     } catch (err: unknown | Error | AxiosError) {
-      // checking if the error is not stock error
+      /** not stock error */
       if (axios.isAxiosError(err)) {
         error.value = err.response?.data.message
       }
@@ -63,7 +63,7 @@ const useSessionsStore = defineStore('sessions', () => {
   }
 
   const toggleActiveSessions = (checked: TypeOrNull<boolean>) => {
-    filters.value.isSessionEnded = checked as boolean | undefined
+    filters.value.isSessionEnded = checked as Maybe<boolean>
     applyFilters()
   }
 
@@ -72,34 +72,21 @@ const useSessionsStore = defineStore('sessions', () => {
     applyFilters()
   }
 
-  /* set an individual filter */
-  const setSingleFilter = (filter: Filter): void => {
-    console.log('change a particular filter once at a time')
-    /* apply filter function will just filter the dataset already fetched earlier */
-    applyFilters()
-  }
-
-  /* batch change params */
-  const setFilters = (filterSet: SessionListParams): void => {
-    console.log('batch change filters all at once...')
-    filters.value = filterSet
-  }
-
   /** function applying frontend filters to the original list */
   const applyFilters = () => {
     let list = [...(sessionsList.value?.parkingSessions || [])]
 
-    // filter the list if the user want to see all sessions (active/unactive)
+    /* filter the list if the user want to see all sessions (active/unactive) */
     if (filters.value.isSessionEnded !== null) {
       list = list.filter((session) => session.isSessionEnded === false)
     }
 
-    // visitors only filter
+    /* visitors-only filter */
     if (filters.value.visitorsOnly === false) {
       list = list.filter((session) => session.parkingSpaceId !== 1)
     }
 
-    // limit being changed and reduced
+    /* limit being changed and reduced */
     if (filters.value.limit && filters.value.limit < list.length) {
       list = list.slice(0, filters.value.limit)
     }
@@ -124,7 +111,7 @@ const useSessionsStore = defineStore('sessions', () => {
     return false
   })
 
-  // anytime the currentPage value changes we fetch results with a different offset
+  /* anytime the currentPage value changes we fetch results with a different offset */
   watch(
     () => currentPage.value,
     (newValue, oldValue) => {
@@ -134,8 +121,8 @@ const useSessionsStore = defineStore('sessions', () => {
       }
     }
   )
-  // anytime the limit changes
-  // if the new limit is greater we fetch, otherwise we shorten the existing results
+
+  /* if the new limit is greater we fetch, otherwise we shorten the existing results */
   watch(
     () => filters.value.limit,
     (newValue, oldValue) => {
@@ -202,7 +189,7 @@ const useSessionsStore = defineStore('sessions', () => {
     }
   }
 
-  // Use the state in the template or computed properties
+  /* Use the state in the template or computed properties */
   const filteredSessions = computed(() => filteredParkingSessions.value)
 
   return {

@@ -7,12 +7,12 @@ import {
   type ParkingSpace
 } from '@/services/spacesService'
 import axios, { type AxiosError, type AxiosResponse } from 'axios'
-import type { OrNull } from 'types'
+import type { TypeOrNull } from 'types'
 
 const useSpacesStore = defineStore('spaces', () => {
   const loading = ref(false)
   const spaces = ref<ParkingSpace[]>([])
-  const error = ref<OrNull<string>>()
+  const error = ref<TypeOrNull<string>>()
 
   const motorcycles = computed(() => {
     return spaces.value?.filter((space) => space?.vehicleType === 'MOTOR')[0]

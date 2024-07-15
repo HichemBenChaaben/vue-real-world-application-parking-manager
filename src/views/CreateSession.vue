@@ -4,32 +4,9 @@
     <template #line>create a new parking session </template>
   </Overview>
   <div class="card">
-    <div class="gap-4 mb-4 pb-4 flex w-full flex-row justify-start">
-      <div class="hidden lg:block">
-        <h2 class="text-xl font-semibold">Parking Information</h2>
-        <div class="bg-gray-100 p-4 rounded-2">
-          <div class="max-w-4xl mx-auto p-6">
-            <div class="bg-white rounded-lg p-6 mb-6">
-              <h2 class="text-2xl font-semibold mb-3">Floor 1</h2>
-              <p class="text-gray-700 mb-2">Parking spaces 1 – 75</p>
-              <ul class="list-disc list-inside text-gray-600">
-                <li>Space 1 – 50: Spaces used for residents of the building (no charge)</li>
-                <li>Space 51 – 130: Cars <strong>€ 5,00</strong> per hour</li>
-                <li>Space 131 – 150: Motorcycles <strong>€ 3,00</strong> per hour</li>
-              </ul>
-            </div>
-
-            <div class="bg-white rounded-lg p-6">
-              <h2 class="text-2xl font-semibold mb-3">Floor 2</h2>
-              <p class="text-gray-700 mb-2">Parking spaces 76 – 150</p>
-              <ul class="list-disc list-inside text-gray-600">
-                <li>Space 1 – 50: Spaces used for residents of the building (no charge)</li>
-                <li>Space 51 – 130: Cars <strong>€ 5,00</strong> per hour</li>
-                <li>Space 131 – 150: Motorcycles <strong>€ 3,00</strong> per hour</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+    <div class="gap-4 mb-2 pb-2 flex w-full flex-row justify-start">
+      <div class="hidden lg:block min-w-[40%]">
+        <ParkingInformation />
       </div>
       <div class="w-full lg:min-w-[600px] lg:border-l-2 lg:border-solid lg:border-gray-100 lg:px-6">
         <form @submit.prevent="handleSubmit" novalidate>
@@ -43,7 +20,7 @@
             :shouldDestroyAfterDone="true"
           />
           <div class="py-2 pt-0">
-            <label class="capitalize font-semibold text-lg"> vehicule type </label>
+            <label class="capitalize font-semibold text-lg"> vehicle type </label>
             <select
               v-model="vehicleType"
               class="capitalize bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -131,28 +108,32 @@ import useSessionsStore from '@/stores/sessionsStore'
 import useSpacesStore from '@/stores/spacesStore'
 import Overview from '@/components/Overview.vue'
 import Button from '@/components/Button.vue'
+import ParkingInformation from '@/components/ParkingInformation/ParkingInformation.vue'
 import { parkingSessionSchema } from '@/schemas/parkingSessionSchema'
 import Indicator from '@/components/Indicator.vue'
+import { useCurrencyFormatter } from '@/composables/useFormatCurrency'
+import { config } from '@/config'
 import { type ParkingSessionCreateParams, type VehiculeType } from '@/services/sessionService'
-import { useDateFormat } from '@/composables/useDateFormat'
 
-const { formatDate } = useDateFormat()
 const spacesStore = useSpacesStore()
 const { spaces } = storeToRefs(spacesStore)
 const sessionsStore = useSessionsStore()
-const { loading, error, sessionStarted } = storeToRefs(sessionsStore)
+const { loading, error } = storeToRefs(sessionsStore)
+
 const isResident = ref<boolean>(false)
 const vehicleLicensePlate = ref<string>('')
 const vehicleType = ref<VehiculeType>('CAR')
 const errorMessage = ref<string | null>(null)
 const showConfetti = ref<boolean>(false)
 
+const { formatCurrency } = useCurrencyFormatter()
+
 const hourlyCharge = computed(() => {
   return isResident.value
     ? 'Free of charge'
     : vehicleType.value.toLocaleLowerCase() === 'car'
-      ? '5 euro / hour'
-      : '3 euro / hour'
+      ? `${formatCurrency(config.pricesPerHourMinutes.car)} / hour`
+      : `${formatCurrency(config.pricesPerHourMinutes.motorcycle)} / hour`
 })
 
 const handleSubmit = () => {
@@ -166,16 +147,16 @@ const handleSubmit = () => {
   const result = parkingSessionSchema.safeParse(formData)
 
   if (!result.success) {
-    errorMessage.value = result.error.errors.map((e: Error) => e.message).join(', ')
+    errorMessage.value = result.error.errors.map((e: { message: string }) => e.message).join(', ')
   } else {
     errorMessage.value = null
     sessionsStore.startParkingSession(formData)
-    resetFormData()
+    resetForm()
     showConfetti.value = true
   }
 }
 
-const resetFormData = () => {
+const resetForm = () => {
   isResident.value = false
   vehicleLicensePlate.value = ''
   vehicleType.value = 'CAR'

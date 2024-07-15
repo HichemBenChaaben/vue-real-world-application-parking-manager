@@ -89,7 +89,7 @@ const useSessionsStore = defineStore('revenue', () => {
     state.value!.sessions = sortedSessions
   }
 
-  const filterByVehiculeType = (filterKey: keyof ParkingSession['vehicleType'] & 'all') => {
+  const filterByVehiculeType = (filterKey: keyof ParkingSession['vehicleType'] | string) => {
     // if there is no data or no filter key, return to prevent adding state.value!
     if (!state.value || !sessionsList.value) {
       return
@@ -116,7 +116,7 @@ const useSessionsStore = defineStore('revenue', () => {
       if (session.vehicleType === 'CAR') {
         aggregate.cars.sessions += 1
         aggregate.cars.revenue += totalHours * config.pricesPerHourMinutes.car
-      } else if (session.vehicleType === 'MOTORCYCLE') {
+      } else if (session.vehicleType === 'MOTOR') {
         aggregate.motorcycles.sessions += 1
         aggregate.motorcycles.revenue += totalHours * config.pricesPerHourMinutes.motorcycle
       }

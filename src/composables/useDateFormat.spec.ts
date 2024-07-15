@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { format } from 'date-fns'
 import { useDateFormat } from './useDateFormat'
 
-describe('useDateFormat', () => {
+describe('useDateFormat composable', () => {
   it('formats a Date object correctly', () => {
     const date = new Date(2023, 11, 25)
     const { formatDate } = useDateFormat()
@@ -42,6 +42,6 @@ describe('useDateFormat', () => {
     const { formatDate } = useDateFormat()
 
     // Expect a specific error or default behavior here
-    expect(() => formatDate(invalidDate)).toThrow() // Or handle gracefully
+    expect(() => formatDate(invalidDate)).toThrow()
   })
 })

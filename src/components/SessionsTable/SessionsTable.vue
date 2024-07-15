@@ -199,15 +199,8 @@ const firstMount = ref<boolean>(true)
 const activeSessionsOnly = ref<boolean>(false)
 const visitorsOnly = ref<boolean>(false)
 const vehiculeType = ref<VahiculeSelection>('all')
-const {
-  loading,
-  activeSessions,
-  filteredSessions,
-  filteredParkingSessions,
-  sessionsList,
-  isLastPage,
-  parkingSessionIdBusy
-} = storeToRefs(store)
+const { loading, filteredParkingSessions, sessionsList, isLastPage, parkingSessionIdBusy } =
+  storeToRefs(store)
 const { formatDate } = useDateFormat()
 
 // infernig the type of the limit from the store

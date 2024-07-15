@@ -6,7 +6,15 @@ import axios, {
 } from 'axios'
 import useAuthStore from '@/stores/authStore'
 
-// Create a single instance of Axios
+/**
+ * Axios instance with base URL, interceptors and cancellation token
+ * we use this instance to make all the API requests
+ * this will make requests configurable in one place (singleton)
+ * the cancellation token will also prevent memory leaks by cancelling requests that are no longer needed
+ * the cancellation token will also prevent the user from seeing outdated data by cancelling requests that are no longer needed
+ * if the session expires while the user is still logged in in the frontend, the user will be redirected to the login page
+ */
+
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: '/',
   withCredentials: true

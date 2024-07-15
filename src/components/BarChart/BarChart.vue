@@ -14,7 +14,7 @@ import {
   BarElement,
   CategoryScale,
   LinearScale
-} from 'chart.js' // package name not a file
+} from 'chart.js'
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 

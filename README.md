@@ -55,7 +55,7 @@ This template should help get you started developing with Vue 3 in Vite.
 ## Prerequisits
 
 ```sh
-node version > 18
+node version >= 18
 ```
 
 ## Recommended IDE Setup

@@ -144,9 +144,13 @@
           />
         </div>
 
+        <TextLoader
+          v-if="loading"
+          class="absolute right-0 flex justify-end items-center py-3 px-8 mt-4"
+        />
         <div
           class="absolute right-0 flex justify-end items-center py-2 mt-4"
-          v-if="state?.aggregate.cars.revenue"
+          v-if="state?.aggregate.cars.revenue && !loading"
         >
           <span class="text-xs">Total Aggregate</span>
           <span class="text-md font-semibold px-2">

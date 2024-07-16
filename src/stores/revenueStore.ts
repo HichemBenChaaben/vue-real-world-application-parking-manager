@@ -53,8 +53,6 @@ const useSessionsStore = defineStore('revenue', () => {
     const params = { ...defaultSearchParams, ...args }
     const cacheKey = `/list/${jsonToUrlParams(params)}`
 
-    console.log(cacheKey, cacheSessionList)
-
     if (cacheSessionList.has(cacheKey)) {
       loading.value = true
       const data = cacheSessionList.get(cacheKey)

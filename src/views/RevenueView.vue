@@ -259,7 +259,6 @@ watch(
 
 const nextPage = () => {
   const total = Math.ceil(totalPages.value / perPage.value)
-  console.log()
   if (currentPage.value < total) {
     currentPage.value++
     store.fetchSessionList({
@@ -280,8 +279,8 @@ const previousPage = () => {
 }
 
 const isLastPage = computed((): boolean => {
-  if (store.totalPages) {
-    return currentPage.value - 1 * perPage.value >= totalPages
+  if (totalPages.value) {
+    return currentPage.value * perPage.value > totalPages.value
   }
   return false
 })

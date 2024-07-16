@@ -1,4 +1,4 @@
-# bf-assignment-hichem-ben-chaabene
+# Frontend coding challenge - ParkingBusiness
 
 for setup, check the setup below
 

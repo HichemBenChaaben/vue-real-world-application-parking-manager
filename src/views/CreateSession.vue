@@ -4,21 +4,23 @@
     <template #line>create a new parking session </template>
   </Overview>
   <div class="card">
+    <div class="flex justify-center items-center">
+      <ConfettiExplosion
+        v-if="showConfetti"
+        :particleCount="280"
+        :force="0.2"
+        :particleSize="4"
+        :duration="4000"
+        :stageHeight="600"
+        :shouldDestroyAfterDone="true"
+      />
+    </div>
     <div class="gap-4 mb-2 pb-2 flex w-full flex-row justify-start">
       <div class="hidden lg:block min-w-[40%]">
         <ParkingInformation />
       </div>
       <div class="w-full lg:min-w-[600px] lg:border-l-2 lg:border-solid lg:border-gray-100 lg:px-6">
         <form @submit.prevent="handleSubmit" novalidate>
-          <ConfettiExplosion
-            v-if="showConfetti"
-            :particleCount="200"
-            :force="0.2"
-            :particleSize="4"
-            :duration="4000"
-            :stageHeight="600"
-            :shouldDestroyAfterDone="true"
-          />
           <div class="py-2 pt-0">
             <label class="capitalize font-semibold text-lg"> vehicle type </label>
             <select

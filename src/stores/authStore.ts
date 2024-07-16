@@ -87,7 +87,7 @@ const useLoginStore = defineStore(
       try {
         loading.value = true
         await api.loginService.logout()
-        isAuthenticated.value = false
+        resetStore()
       } catch (err: unknown | Error | AxiosError) {
         if (axios.isAxiosError(err)) {
           error.value = err.response?.data.message
@@ -95,6 +95,19 @@ const useLoginStore = defineStore(
       } finally {
         loading.value = false
         router.push('/')
+      }
+    }
+
+    const resetStore = () => {
+      loading.value = false
+      error.value = ''
+      isAuthenticated.value = false
+
+      user.value = {
+        user: {
+          id: undefined,
+          email: undefined
+        }
       }
     }
 

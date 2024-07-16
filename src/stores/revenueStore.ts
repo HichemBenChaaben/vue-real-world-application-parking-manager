@@ -40,14 +40,38 @@ const useSessionsStore = defineStore('revenue', () => {
     sessionEndedAtTo: new Date().toISOString()
   }
 
-  const fetchSessionList = async (args): Promise<void> => {
+  function jsonToUrlParams(params: Record<string, any>): string {
+    const searchParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      searchParams.append(key, value)
+    })
+    return searchParams.toString()
+  }
+
+  const cacheSessionList = new Map()
+  const fetchSessionList = async (args: any): Promise<void> => {
     const params = { ...defaultSearchParams, ...args }
+    const cacheKey = `/list/${jsonToUrlParams(params)}`
+
+    console.log(cacheKey, cacheSessionList)
+
+    if (cacheSessionList.has(cacheKey)) {
+      loading.value = true
+      const data = cacheSessionList.get(cacheKey)
+      totalPages.value = data.parkingSessionsTotalCount
+      sessionsList.value = filterByNonResidentsSessions(data.parkingSessions)
+      setRevenueAggregates(sessionsList.value, params)
+      loading.value = false
+      return
+    }
+
     try {
       loading.value = true
       const response = await api.sessionsService.list(params)
-
+      cacheSessionList.set(cacheKey, response.data.data)
       totalPages.value = response.data.data.parkingSessionsTotalCount
       sessionsList.value = filterByNonResidentsSessions(response.data.data.parkingSessions)
+      cacheSessionList.set(cacheKey, response.data.data)
       setRevenueAggregates(sessionsList.value, params)
     } catch (err: unknown | Error | AxiosError) {
       if (axios.isAxiosError(err)) {

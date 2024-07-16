@@ -57,7 +57,7 @@ axiosInstance.interceptors.response.use(
       const authStore = useAuthStore()
       authStore.isAuthenticated = false
     }
-    return Promise.reject(error)
+    // return Promise.reject(error)
   }
 )
 

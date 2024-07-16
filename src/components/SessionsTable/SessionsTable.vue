@@ -191,8 +191,8 @@
 
     <div>
       <div class="min-h-[300px] max-h-[300px] overflow-hidden">
-        <TableLoader v-if="loading && !firstMount" class="max-h-[400px]" />
-        <div v-if="!firstMount && !loading" class="max-h-[400px] overflow-scroll w-full">
+        <TableLoader v-if="loading" class="max-h-[400px]" />
+        <div v-if="!loading" class="max-h-[400px] overflow-scroll w-full">
           <table class="bg-white border border-gray-300 text-sm w-full">
             <thead
               class="sticky z-10 top-[-1px] border-t-1 border-gray-200 z-99 bg-white border-collapse py-2"
@@ -313,7 +313,6 @@ import type { ParkingSession } from '@/services/sessionService'
 type VahiculeSelection = 'cars' | 'motorcycles' | 'all'
 
 const store = useSessionsStore()
-const firstMount = ref<boolean>(true)
 const activeSessionsOnly = ref<boolean>(false)
 const visitorsOnly = ref<boolean>(false)
 const vehicleType = ref<VahiculeSelection>('all')
@@ -335,13 +334,6 @@ const liscencePlate = ref<string>()
 
 // infernig the type of the limit from the store
 const totalDisplay = ref<number>(store.filters.limit as number)
-
-watch(
-  () => loading.value,
-  () => {
-    firstMount.value = false
-  }
-)
 
 watch(
   () => totalDisplay.value,

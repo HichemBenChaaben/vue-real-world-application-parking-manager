@@ -8,8 +8,10 @@
 
       <div class="flex items-end">
         <router-link to="/dashboard/create">
-          <Button variant="primary">
-            <i class="fas fa-plus"></i>
+          <Button
+            class="bg-indigo-600 hover:bg-indigo-800 border border-solid border-1 border-indigo-300 hover:border-indigo-600 text-white"
+          >
+            <i class="fa fa-hourglass-start"></i>
             <span class="pl-2">new session</span>
           </Button>
         </router-link>

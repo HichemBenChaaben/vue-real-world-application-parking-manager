@@ -186,6 +186,7 @@ const useSessionsStore = defineStore('sessions', () => {
       if (axios.isAxiosError(err)) {
         error.value = err.response?.data.message
       }
+      error.value = 'An error occured'
       loading.value = false
     } finally {
       loading.value = false

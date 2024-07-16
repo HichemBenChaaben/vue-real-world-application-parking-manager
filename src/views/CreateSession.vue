@@ -56,15 +56,15 @@
             />
           </div>
           <div v-if="errorMessage" class="text-red-500">{{ errorMessage }}</div>
-          <div v-if="error">{{ error }}</div>
           <div
             v-if="error && !loading"
             class="bg-red-100 p-4 border border-solid border-red-300 text-xs rounded-md py-4 my-4 text-red-400"
           >
-            We couldn't create your session, please try again
+            <i class="fa fa-triangle-exclamation"></i> We couldn't create your session, please try
+            again
           </div>
           <div
-            v-if="showConfetti && !loading"
+            v-if="showConfetti && !loading && !error"
             class="capitalize text-green-900 bg-green-100 border border-green-200 text-sm rounded-md my-2 p-4"
           >
             session created successfully
@@ -157,7 +157,7 @@ const handleSubmit = () => {
 
 watch(
   () => sessionCreateSuccess.value,
-  (newValue, oldValue) => {
+  () => {
     if (sessionCreateSuccess) {
       showConfetti.value = true
     }

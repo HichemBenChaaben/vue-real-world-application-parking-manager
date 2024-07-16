@@ -44,8 +44,6 @@ while some are requests are still pending.
 
 ## Preview
 
-[![Demo Parking business challenge](demo.mov)
-
 !["Image description"](preview-1.png)
 !["Image description"](preview-2.png)
 !["Image description"](preview-3.png)

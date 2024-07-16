@@ -10,7 +10,7 @@ import type {
   ParkingSessionCreateParams,
   StartSessionResponse
 } from '@/services/sessionService'
-import type { Maybe, TypeOrNull } from 'types'
+import type { TypeOrNull } from 'types'
 
 /** extend the session list params to support nulling the values by the store actions */
 interface SessionListParamsExtended {
@@ -27,6 +27,8 @@ const useSessionsStore = defineStore('sessions', () => {
   const parkingSessionIdBusy = ref<TypeOrNull<string>>(null)
   const sessionStarted = ref<TypeOrNull<StartSessionResponse>>(null)
   const sessionCreateSuccess = ref<TypeOrNull<boolean>>(null)
+  const isSessionEndedFilter = ref<TypeOrNull<boolean>>(null)
+  const vehicleLicensePlate = ref<string>('')
 
   const defaultStoreFilters: Partial<SessionListParams> = {
     offset: 0,
@@ -48,10 +50,12 @@ const useSessionsStore = defineStore('sessions', () => {
   const fetchSessionList = async (params: Partial<SessionListParams>): Promise<void> => {
     try {
       loading.value = true
-      const {
-        data: { data }
-      } = await api.sessionsService.list(params)
-      sessionsList.value = data
+      const response = await api.sessionsService.list({
+        isSessionEnded: isSessionEndedFilter.value ? null : false,
+        vehicleLicensePlate: vehicleLicensePlate.value,
+        ...params
+      })
+      sessionsList.value = response.data.data
     } catch (err: unknown | Error | AxiosError) {
       /** not stock error */
       if (axios.isAxiosError(err)) {
@@ -63,24 +67,9 @@ const useSessionsStore = defineStore('sessions', () => {
     }
   }
 
-  const toggleActiveSessions = (checked: TypeOrNull<boolean>) => {
-    filters.value.isSessionEnded = checked as Maybe<boolean>
-    applyFilters()
-  }
-
-  const toggleVisitors = (checked: Maybe<boolean>) => {
-    filters.value.visitorsOnly = checked
-    applyFilters()
-  }
-
   /** function applying frontend filters to the original list */
   const applyFilters = () => {
     let list = [...(sessionsList.value?.parkingSessions || [])]
-
-    /* filter the list if the user want to see all sessions (active/unactive) */
-    if (filters.value.isSessionEnded !== null) {
-      list = list.filter((session) => session.isSessionEnded === false)
-    }
 
     /* visitors-only filter */
     if (filters.value.visitorsOnly === false) {
@@ -93,52 +82,6 @@ const useSessionsStore = defineStore('sessions', () => {
     }
 
     filteredParkingSessions.value = list
-  }
-
-  const nextPage = () => {
-    currentPage.value = currentPage.value + 1
-  }
-  const previousPage = () => {
-    currentPage.value = currentPage.value - 1
-  }
-
-  const isLastPage = computed((): boolean => {
-    if (filters.value.limit && sessionsList.value?.parkingSessionsTotalCount) {
-      return (
-        (currentPage.value * filters.value.limit || 10) >=
-        sessionsList.value?.parkingSessionsTotalCount
-      )
-    }
-    return false
-  })
-
-  /* anytime the currentPage value changes we fetch results with a different offset */
-  watch(
-    () => currentPage.value,
-    (newValue, oldValue) => {
-      if (newValue !== oldValue) {
-        filters.value.offset = (currentPage.value - 1) * (filters.value.limit || 10)
-        fetchSessionList(filters.value)
-      }
-    }
-  )
-
-  /* if the new limit is greater we fetch, otherwise we shorten the existing results */
-  watch(
-    () => filters.value.limit,
-    (newValue, oldValue) => {
-      if (newValue !== oldValue && newValue && oldValue) {
-        if (newValue > oldValue) {
-          fetchSessionList(filters.value)
-        } else {
-          applyFilters()
-        }
-      }
-    }
-  )
-
-  const updateLimit = (limit: number) => {
-    filters.value.limit = limit
   }
 
   const endParkingSession = async (parkingSessionId: string) => {
@@ -177,39 +120,36 @@ const useSessionsStore = defineStore('sessions', () => {
     try {
       loading.value = true
       sessionCreateSuccess.value = null
-      const {
-        data: { data }
-      } = await api.sessionsService.startSession(params)
-      sessionStarted.value = data
+      const response = await api.sessionsService.startSession(params)
+      sessionStarted.value = response?.data?.data
       sessionCreateSuccess.value = true
     } catch (err: unknown | Error | AxiosError) {
       if (axios.isAxiosError(err)) {
         error.value = err.response?.data.message
       }
       error.value = 'An error occured'
-      loading.value = false
     } finally {
       loading.value = false
     }
+  }
+
+  const setIsSessionEndedFilter = (value: boolean) => {
+    isSessionEndedFilter.value = value
   }
 
   /* Use the state in the template or computed properties */
   const filteredSessions = computed(() => filteredParkingSessions.value)
 
   return {
-    updateLimit,
     activeSessions,
     sessionsList,
     sessionStarted,
     fetchSessionList,
     endParkingSession,
     startParkingSession,
-    toggleActiveSessions,
-    toggleVisitors,
-    nextPage,
-    previousPage,
-    isLastPage,
+    setIsSessionEndedFilter,
     currentPage,
+    isSessionEndedFilter,
     filteredParkingSessions,
     parkingSessionIdBusy,
     filteredSessions,

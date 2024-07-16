@@ -108,14 +108,13 @@
                 {{ session.sessionLengthInHoursMinutes ?? 'N/A' }}
               </td>
               <td class="text-right py-2 px-4 border-b">{{ session.vehicleLicensePlate }}</td>
-              <td class="text-right py-2 px-4 border-b">{{ session.vehicleType }}</td>
+              <td class="text-right py-2 px-4 border-b">
+                <VehicleIndicator :vehicleType="session.vehicleType" />
+              </td>
               <td class="text-right py-2 px-4 border-b">
                 <span class="font-semibold text-gray-800">
                   {{
-                    Intl.NumberFormat('nl-NL', {
-                      style: 'currency',
-                      currency: 'EUR'
-                    }).format(
+                    formatCurrency(
                       session.vehicleType === 'CAR'
                         ? (session?.sessionLengthInHoursMinutes / 60) * 5
                         : (session?.sessionLengthInHoursMinutes / 60) * 3
@@ -176,6 +175,7 @@ import { useDateFormat } from '@/composables/useDateFormat'
 import { useCurrencyFormatter } from '@/composables/useFormatCurrency'
 import TableLoader from '@/components/SessionsTable/TableLoader.vue'
 import TextLoader from '@/components/TextLoader.vue'
+import VehicleIndicator from '@/components/VehicleIndicator/VehicleIndicator.vue'
 import type { ParkingSession, VehiculeType } from '@/services/sessionService'
 import type { TypeOrNull } from 'types'
 

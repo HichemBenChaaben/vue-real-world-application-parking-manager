@@ -27,7 +27,6 @@ app.use(
         if (req.body) {
           // parsers messes up the request body, need to restream it
           let bodyData = JSON.stringify(req.body)
-          console.log('Proxy request:', req.method, req.url)
           proxyReq.setHeader('Content-Type', 'application/json')
           proxyReq.setHeader('Accept', 'application/json')
           proxyReq.setHeader('Authorization', `Bearer ${req.cookies['accessToken']}`)
@@ -38,7 +37,6 @@ app.use(
       }
     },
     onError: (err) => {
-      console.error('Proxy error:', err)
       res.status(500).send('Proxy error')
     }
   })

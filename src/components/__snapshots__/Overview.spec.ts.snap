@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Overview > matches snapshot 1`] = `
+exports[`Overview component > matches snapshot 1`] = `
 "<div data-v-55ca85f9="" class="mt-3">
   <h1 data-v-55ca85f9="" class="title"></h1>
   <p data-v-55ca85f9="" class="line"></p>

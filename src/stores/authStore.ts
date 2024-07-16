@@ -42,16 +42,20 @@ const useLoginStore = defineStore(
       try {
         loading.value = true
         const response = await api.loginService.login(credentials)
+        console.log('response', response)
         setUser(response.data.data)
         if (response.status === 200) {
           isAuthenticated.value = true
           await getMe()
           router.push('/dashboard')
+          error.value = null
         }
       } catch (err: unknown | Error | AxiosError) {
         if (axios.isAxiosError(err)) {
           error.value = err.response?.data.message
         }
+        // stock error message if not coming from axios
+        error.value = 'Invalid email or password'
       } finally {
         loading.value = false
       }

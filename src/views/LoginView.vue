@@ -2,6 +2,7 @@
   <div class="flex justify-center items-center h-screen">
     <div class="w-96 p-6 bg-white rounded-lg shadow-xl">
       <h1 class="text-3xl font-bold text-center">Login</h1>
+
       <form @submit.prevent="handleSubmit" novalidate>
         <div class="mt-6">
           <label for="email" class="block text-gray-600">Email:</label>
@@ -19,7 +20,7 @@
             type="password"
             id="password"
             v-model="password"
-            autocomplete="current-password" 
+            autocomplete="current-password"
             required
             class="w-full px-4 py-2 mt-2 border rounded-lg"
           />
@@ -36,23 +37,32 @@
             Login
           </Button>
         </div>
+        <div v-if="expiredParam" class="text-red-400 text-md">session expired</div>
       </form>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import useLoginStore from '@/stores/authStore'
 import { storeToRefs } from 'pinia'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import Button from '@/components/Button.vue'
 
-const router = useRouter()
 const email = ref<string>()
 const password = ref<string>()
 const hasErrors = ref(false)
 const store = useLoginStore()
 const loading = ref(false)
+
+const router = useRouter()
+const route = useRoute()
+
+const expiredParam = ref(route.query.expired)
+
+watchEffect(() => {
+  expiredParam.value = route.query.expired
+})
 
 const { error, isAuthenticated } = storeToRefs(store)
 
@@ -61,8 +71,8 @@ const handleSubmit = async () => {
     loading.value = true
     hasErrors.value = false
     await store.login({
-      email: 'super@parkdemeer.nl',
-      password: 'SUPER_USER_SECRET_PASS'
+      email: email.value,
+      password: password.value
     })
   } catch (error) {
     hasErrors.value = true

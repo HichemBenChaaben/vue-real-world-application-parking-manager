@@ -5,6 +5,8 @@ import axios, {
   type CancelTokenSource
 } from 'axios'
 import useAuthStore from '@/stores/authStore'
+import router from '@/router'
+import { useRoute } from 'vue-router'
 
 /**
  * Axios instance with base URL, interceptors and cancellation token
@@ -42,12 +44,10 @@ axiosInstance.interceptors.request.use((config) => {
 // Axios response interceptor to handle cancellation
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
-    // Remove the cancel token from the map on success
     cancelTokens.delete(response.config.url!)
     return response
   },
   (error: AxiosError) => {
-    // Handle cancellation
     if (axios.isCancel(error)) {
       cancelTokens.delete(error?.config?.url!)
     }
@@ -55,9 +55,12 @@ axiosInstance.interceptors.response.use(
     // example the session expires while the user is still logged in in the frontend
     if (error.response && error.response.status === 401) {
       const authStore = useAuthStore()
+      const route = useRoute()
       authStore.isAuthenticated = false
+      if (router.currentRoute.value.fullPath !== '/') {
+        router.push('/?expired=1')
+      }
     }
-    // return Promise.reject(error)
   }
 )
 

@@ -1,0 +1,3 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`VehicleIndicator > renders and matches snapshot 1`] = `"<i class="text-xl fas fa-car text-gray-400"></i>"`;

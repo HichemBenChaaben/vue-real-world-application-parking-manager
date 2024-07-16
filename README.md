@@ -1,5 +1,13 @@
 # bf-assignment-hichem-ben-chaabene
 
+for setup, check the setup below
+
+## SPA BFF BE Architecture
+
+!["Image description"](arc.png)
+
+# SETUP
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
@@ -62,4 +70,5 @@ npm run test:e2e -- --debug
 ```sh
 npm run lint
 ```
+
 # vue-express-pinia-vitest-typescript

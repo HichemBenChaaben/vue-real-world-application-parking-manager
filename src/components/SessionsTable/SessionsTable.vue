@@ -32,9 +32,14 @@
       <div class="flex flex-col items-start px-0 mx-0 gap-y-10 my-8">
         <div class="flex flex-row justify-between items-center w-full">
           <h2 class="text-2xl capitalize font-semibold pb-4">refine results</h2>
-          <Indicator variant="primary">
-            {{ localFilterState?.length }} session{{ localFilterState?.length === 0 ? '' : 's' }}
-          </Indicator>
+          <div>
+            <Indicator variant="primary" v-if="!loading">
+              {{ localFilteredState?.length }} session{{
+                localFilteredState?.length === 0 ? '' : 's'
+              }}
+            </Indicator>
+            <TextLoader v-else />
+          </div>
         </div>
         <form
           @submit.prevent="() => fetchSessionsByLiscencePlate()"
@@ -99,7 +104,7 @@
           >
             <option value="all">all vehicles</option>
             <option value="CAR">car</option>
-            <option value="MOTOR">motorcycle</option>
+            <option value="MOTORCYCLE">motorcycle</option>
           </select>
         </div>
       </div>
@@ -116,7 +121,7 @@
         <Button
           variant="secondary"
           class="block lg:hidden my-4 mx-2"
-          @click="() => resetLocalFilters()"
+          @click="() => resetAllFilters()"
           >reset filters</Button
         >
       </div>
@@ -157,7 +162,7 @@
           >
             <option value="all">all vehicles</option>
             <option value="CAR">car</option>
-            <option value="MOTOR">motorcycle</option>
+            <option value="MOTORCYCLE">motorcycle</option>
           </select>
         </div>
         <div class="flex justify-start items-center gap-2">
@@ -193,7 +198,10 @@
       <div class="min-h-[300px] max-h-[300px] overflow-hidden">
         <TableLoader v-if="loading" class="max-h-[400px]" />
         <div v-if="!loading" class="max-h-[400px] overflow-scroll w-full">
-          <table class="bg-white border border-gray-300 text-sm w-full">
+          <table
+            class="bg-white border border-gray-300 text-sm w-full"
+            :class="{ 'animate-pulse': loading }"
+          >
             <thead
               class="sticky z-10 top-[-1px] border-t-1 border-gray-200 z-99 bg-white border-collapse py-2"
             >
@@ -211,7 +219,7 @@
             </thead>
             <tbody class="body-row">
               <tr
-                v-for="session in localFilterState"
+                v-for="session in localFilteredState"
                 :key="session.parkingSessionId"
                 class="text-right"
                 :class="{
@@ -237,9 +245,7 @@
                   {{ session.vehicleLicensePlate }}
                 </td>
                 <td class="text-right py-2 px-4 border-b">
-                  <i
-                    :class="`text-xl fas fa-${session.vehicleType === 'CAR' ? 'car' : 'motorcycle'} text-gray-400`"
-                  ></i>
+                  <VehicleIndicator :vehicleType="session.vehicleType" />
                 </td>
                 <td class="text-right py-2 px-4 border-b">
                   <button
@@ -276,16 +282,16 @@
       </div>
       <div class="mt-4 mx-0 flex justify-center relative">
         <Pagination
-          @nextPage="store.nextPage"
-          @previousPage="store.previousPage"
-          :currentPage="store.currentPage"
+          @nextPage="nextPage"
+          @previousPage="previousPage"
+          :currentPage="currentPage"
           :isLastPage="isLastPage"
         />
         <div class="right-0 top-0 z-0 absolute">
           <select
             class="border border-gray-300 rounded-md px-2 py-1"
-            v-model="totalDisplay"
-            @change="() => store.updateLimit(totalDisplay)"
+            v-model="perPage"
+            @change="() => updateLimitPerPage"
           >
             <option value="10">10</option>
             <option value="20">20</option>
@@ -299,7 +305,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import useSessionsStore from '@/stores/sessionsStore'
 import TableLoader from './TableLoader.vue'
@@ -317,46 +323,20 @@ const activeSessionsOnly = ref<boolean>(false)
 const visitorsOnly = ref<boolean>(false)
 const vehicleType = ref<VahiculeSelection>('all')
 const localSearchLoading = ref<boolean>(false)
-const { loading, filteredParkingSessions, sessionsList, isLastPage, parkingSessionIdBusy } =
-  storeToRefs(store)
+const { loading, filteredParkingSessions, sessionsList, parkingSessionIdBusy } = storeToRefs(store)
 const { formatDate } = useDateFormat()
-
+const localFilteredState = ref<typeof filteredParkingSessions>(filteredParkingSessions)
+const liscencePlate = ref<string>()
+const perPage = ref<number>(100)
+const currentPage = ref<number>(1)
 const isModalOpen = ref(false)
 
 const openModal = () => {
-  console.log('open modal')
   isModalOpen.value = true
 }
 
-const localFilterState = ref<typeof filteredParkingSessions>(filteredParkingSessions)
-
-const liscencePlate = ref<string>()
-
-// infernig the type of the limit from the store
-const totalDisplay = ref<number>(store.filters.limit as number)
-
-watch(
-  () => totalDisplay.value,
-  () => {
-    store.fetchSessionList({
-      limit: totalDisplay.value,
-      offset: 1
-    })
-  }
-)
-
-watch(
-  () => totalDisplay.value,
-  () => {
-    store.fetchSessionList({
-      limit: totalDisplay.value,
-      offset: 1
-    })
-  }
-)
-
 store.fetchSessionList({
-  limit: totalDisplay.value,
+  limit: perPage.value,
   offset: 1
 })
 
@@ -364,23 +344,27 @@ const handleEndSession = (session: ParkingSession): void => {
   store.endParkingSession(session.parkingSessionId)
 }
 
-const toggleActiveOnly = () => {
-  const toggleValue: boolean | null =
-    activeSessionsOnly.value === false ? activeSessionsOnly.value : null
-  store.toggleActiveSessions(toggleValue)
-}
-
 const toggleVisitorsOnly = () => {
-  store.toggleVisitors(!visitorsOnly.value)
+  if (sessionsList.value) {
+    localFilteredState.value = visitorsOnly.value
+      ? sessionsList.value.parkingSessions.filter((session) => session.parkingSpaceId !== 1)
+      : sessionsList.value.parkingSessions
+  }
+}
+const toggleActiveOnly = () => {
+  store.setIsSessionEndedFilter(activeSessionsOnly.value)
+  store.fetchSessionList({
+    limit: perPage.value,
+    offset: 0
+  })
 }
 
 const handleFilterByVehicleType = () => {
-  console.log('vehicleType.value...', vehicleType.value)
   if (vehicleType.value === 'all') {
-    localFilterState.value = filteredParkingSessions.value
+    localFilteredState.value = sessionsList.value?.parkingSessions
     return
   }
-  localFilterState.value = filteredParkingSessions.value?.filter(
+  localFilteredState.value = sessionsList.value?.parkingSessions.filter(
     (session) => session.vehicleType === vehicleType.value
   )
 }
@@ -390,28 +374,70 @@ const resetLocalFilters = () => {
   activeSessionsOnly.value = false
   liscencePlate.value = ''
   toggleActiveOnly()
-  store.toggleVisitors(!visitorsOnly.value)
+  store.currentPage = 1
   store.fetchSessionList({
-    limit: totalDisplay.value,
+    limit: perPage.value,
     offset: 0
   })
-  store.currentPage = 1
+}
+
+const resetAllFilters = () => {
+  resetLocalFilters()
+  vehicleType.value = 'all'
+  store.fetchSessionList({
+    limit: perPage.value,
+    offset: 0
+  })
 }
 
 const fetchSessionsByLiscencePlate = async () => {
   try {
     localSearchLoading.value = true
     await store.fetchSessionList({
-      limit: totalDisplay.value,
+      limit: perPage.value,
       offset: 0,
       vehicleLicensePlate: liscencePlate.value
     })
   } catch (error) {
-    console.error(error)
+    // handle the error
   } finally {
     localSearchLoading.value = false
   }
 }
+
+const updateLimitPerPage = () => {
+  store.fetchSessionList({
+    limit: perPage.value,
+    offset: (currentPage.value - 1) * perPage.value
+  })
+}
+
+const nextPage = () => {
+  const totalPages = Math.ceil(sessionsList.value!.parkingSessionsTotalCount / perPage.value)
+  if (store.currentPage < totalPages) {
+    currentPage.value++
+    store.fetchSessionList({
+      limit: perPage.value,
+      offset: (currentPage.value - 1) * perPage.value
+    })
+  }
+}
+
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    store.fetchSessionList({
+      limit: perPage.value,
+      offset: (currentPage.value - 1) * perPage.value
+    })
+  }
+}
+const isLastPage = computed((): boolean => {
+  if (sessionsList?.value?.parkingSessionsTotalCount) {
+    return currentPage.value * perPage.value >= sessionsList.value!.parkingSessionsTotalCount
+  }
+  return false
+})
 </script>
 
 <style scoped>

@@ -22,5 +22,6 @@ declare module 'vue' {
     SessionsTable: typeof import('./src/components/SessionsTable/SessionsTable.vue')['default']
     TableLoader: typeof import('./src/components/SessionsTable/TableLoader.vue')['default']
     TextLoader: typeof import('./src/components/TextLoader.vue')['default']
+    VehicleIndicator: typeof import('./src/components/VehicleIndicator/VehicleIndicator.vue')['default']
   }
 }

@@ -133,14 +133,29 @@
           <p class="text-gray-400">No items to display , try changing your search criteria</p>
         </div>
       </div>
-      <div class="flex justify-end items-center py-2 mt-4" v-if="state?.aggregate.cars.revenue">
-        <span class="text-xs">Total Aggregate</span>
-        <span class="text-md font-semibold px-2">
-          {{
-            formatCurrency(state.aggregate.cars.revenue + state.aggregate.motorcycles.revenue) ??
-            'N/A'
-          }}
-        </span>
+
+      <div class="flex justify-center items-center flex-row relative">
+        <div class="mt-4 mx-0 flex justify-center relative">
+          <Pagination
+            @nextPage="nextPage"
+            @previousPage="previousPage"
+            :currentPage="currentPage"
+            :isLastPage="isLastPage"
+          />
+        </div>
+
+        <div
+          class="absolute right-0 flex justify-end items-center py-2 mt-4"
+          v-if="state?.aggregate.cars.revenue"
+        >
+          <span class="text-xs">Total Aggregate</span>
+          <span class="text-md font-semibold px-2">
+            {{
+              formatCurrency(state.aggregate.cars.revenue + state.aggregate.motorcycles.revenue) ??
+              'N/A'
+            }}
+          </span>
+        </div>
       </div>
     </div>
 
@@ -166,7 +181,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import Overview from '@/components/Overview.vue'
 import BarChart from '@/components/BarChart/BarChart.vue'
 import { storeToRefs } from 'pinia'
@@ -174,6 +189,7 @@ import useRevenueStore from '@/stores/revenueStore'
 import { useDateFormat } from '@/composables/useDateFormat'
 import { useCurrencyFormatter } from '@/composables/useFormatCurrency'
 import TableLoader from '@/components/SessionsTable/TableLoader.vue'
+import Pagination from '../components/SessionsTable/Pagination.vue'
 import TextLoader from '@/components/TextLoader.vue'
 import VehicleIndicator from '@/components/VehicleIndicator/VehicleIndicator.vue'
 import type { ParkingSession, VehiculeType } from '@/services/sessionService'
@@ -185,11 +201,13 @@ const { formatDate } = useDateFormat()
 const { formatCurrency } = useCurrencyFormatter()
 
 const store = useRevenueStore()
-const { loading, state } = storeToRefs(store)
+const { loading, state, totalPages } = storeToRefs(store)
 
 const sortingKey = ref<TypeOrNull<keyof ParkingSession>>(null)
 const sortingOrder = ref<string>('asc')
 const vehiculeTypeFilter = ref<VehiculeTypeSelection>('all')
+const currentPage = ref(1)
+const perPage = ref(100)
 
 store.fetchSessionList()
 
@@ -207,7 +225,7 @@ const dataSets = ref({
   labels: ['Car', 'Motorcycle'],
   datasets: [
     {
-      label: 'revenue in euros',
+      label: 'revenue in euros by vehicle type',
       backgroundColor: ['indigo', 'gray'],
       data: [state.value?.aggregate.cars.revenue, state.value?.aggregate.motorcycles.revenue]
     }
@@ -218,7 +236,7 @@ const dataSetsSessions = ref({
   labels: ['Car', 'Motorcycle'],
   datasets: [
     {
-      label: 'sessions by vehicle',
+      label: 'sessions by vehicle type',
       backgroundColor: ['blue', 'fushia'],
       data: [state.value?.aggregate.cars.sessions, state.value?.aggregate.motorcycles.sessions]
     }
@@ -238,6 +256,35 @@ watch(
     deep: true
   }
 )
+
+const nextPage = () => {
+  const total = Math.ceil(totalPages.value / perPage.value)
+  console.log()
+  if (currentPage.value < total) {
+    currentPage.value++
+    store.fetchSessionList({
+      limit: perPage.value,
+      offset: (currentPage.value - 1) * perPage.value
+    })
+  }
+}
+
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    store.fetchSessionList({
+      limit: perPage.value,
+      offset: (currentPage.value - 1) * perPage.value
+    })
+  }
+}
+
+const isLastPage = computed((): boolean => {
+  if (store.totalPages) {
+    return currentPage.value - 1 * perPage.value >= totalPages
+  }
+  return false
+})
 </script>
 <style scoped>
 .card {

@@ -6,6 +6,42 @@ for setup, check the setup below
 
 !["Image description"](arc.png)
 
+Scaling architecture
+
+!["Image description"](scale.png)
+
+illustrating potential solution to scale the full stack architecture
+to support large real time data sets
+
+## Tech stack
+
+- typescript + zod <3
+- vue 3 + pinia + vue router
+- tailwind css
+- express with http-request-middleware
+- axios
+- vitest for testing (unit, snapshots and inline snapshotting)
+
+## Features
+
+- login /logout
+- dashboard overview
+- revenue overview
+- start session form
+
+## Extra added features
+
+- multiple layouts
+- request cancellations
+- offline indicator
+- some responsiveness for small screen size support
+- loading indicators skeleton loaders
+- some charts
+- some confetti for fun
+
+Request cancellation is an extra ability to cancel outgoing requests
+while some are requests are still pending.
+
 ## Preview
 
 !["Image description"](preview-1.png)

@@ -113,7 +113,7 @@ const configMotorcycles = computed((): Data => {
     labels: ['free', 'occupied'],
     datasets: [
       {
-        backgroundColor: ['darkgray', 'blue'],
+        backgroundColor: ['#ededed', '#4f46e5'],
         data: [free, occupancy]
       }
     ]
@@ -127,7 +127,7 @@ const config = computed((): Data => {
     labels: ['free', 'occupied'],
     datasets: [
       {
-        backgroundColor: ['darkgray', 'blue'],
+        backgroundColor: ['#ededed', '#4f46e5'],
         data: [free, occupancy]
       }
     ]

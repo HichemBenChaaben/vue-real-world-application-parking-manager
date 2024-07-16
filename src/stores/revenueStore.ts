@@ -30,22 +30,24 @@ const useSessionsStore = defineStore('revenue', () => {
   const error = ref<TypeOrNull<string>>(null)
   const sessionsList = ref<TypeOrNull<ParkingSession[]>>(null)
   const state = ref<TypeOrNull<RevenueAggregates>>(null)
+  const totalPages = ref(0)
 
   const defaultSearchParams: Partial<SessionListParams> = {
     offset: 0,
-    limit: 300,
+    limit: 100,
     isSessionEnded: true,
     sessionStartedAtFrom: new Date(new Date().getFullYear(), 0, 1).toISOString(),
     sessionEndedAtTo: new Date().toISOString()
   }
 
-  const fetchSessionList = async (params = defaultSearchParams): Promise<void> => {
+  const fetchSessionList = async (args): Promise<void> => {
+    const params = { ...defaultSearchParams, ...args }
     try {
       loading.value = true
-      const {
-        data: { data }
-      } = await api.sessionsService.list(params)
-      sessionsList.value = filterByNonResidentsSessions(data.parkingSessions)
+      const response = await api.sessionsService.list(params)
+
+      totalPages.value = response.data.data.parkingSessionsTotalCount
+      sessionsList.value = filterByNonResidentsSessions(response.data.data.parkingSessions)
       setRevenueAggregates(sessionsList.value, params)
     } catch (err: unknown | Error | AxiosError) {
       if (axios.isAxiosError(err)) {
@@ -128,6 +130,7 @@ const useSessionsStore = defineStore('revenue', () => {
   return {
     error,
     sessionsList,
+    totalPages,
     fetchSessionList,
     filterByVehiculeType,
     sortStateFacetsByKey,

@@ -9,7 +9,7 @@
     "dev:server": "nodemon server/index.js",
     "start:server": "node server/index.js",
     "build": "run-p type-check \"build-only {@}\" --",
-    "prod": "npm run build && npm run start:server",
+    "prod": "npm run build-only && npm run start:server",
     "preview": "vite preview",
     "test:unit": "vitest",
     "test:e2e": "playwright test",

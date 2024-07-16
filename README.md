@@ -6,9 +6,21 @@ for setup, check the setup below
 
 !["Image description"](arc.png)
 
+## Preview
+
+!["Image description"](preview-1.png)
+!["Image description"](preview-2.png)
+!["Image description"](preview-3.png)
+
 # SETUP
 
 This template should help get you started developing with Vue 3 in Vite.
+
+## Prerequisits
+
+```sh
+node version > 18
+```
 
 ## Recommended IDE Setup
 
@@ -46,29 +58,18 @@ npm run build
 npm run test:unit
 ```
 
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
-
-```sh
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
-npm run build
-
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
-```
-
 ### Lint with [ESLint](https://eslint.org/)
 
 ```sh
 npm run lint
 ```
 
-# vue-express-pinia-vitest-typescript
+### Run production ready mode and preview on localhost:3000
+
+```sh
+npm run prod
+```
+
+if you testing on safari, check `server/index.js` for details about how to
+get around safari not storing localhost cookies
+this will run a quick production mode preview on `localhost:3000`

@@ -35,7 +35,7 @@
     </aside>
     <main class="h-full w-full min-h-dvh flex flex-col px-4 overflow-scroll">
       <div
-        class="card bg-white p-4 shadow-sm border border-solid border-gray-300 sticky top-0 z-20"
+        class="card bg-white px-5 py-4 shadow-sm border border-solid border-gray-300 sticky top-0 z-20"
       >
         <div class="flex justify-between">
           <h1>

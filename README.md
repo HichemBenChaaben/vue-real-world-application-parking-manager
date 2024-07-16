@@ -44,7 +44,7 @@ while some are requests are still pending.
 
 ## Preview
 
-<div style="position: relative; padding-bottom: 56.25%; height: 0;"><iframe src="https://www.loom.com/embed/e32271c3eccc43bb98fffea73a906287?sid=8a1a82b8-7dd8-4ad9-9a0c-f0613c982dac" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div>
+[![demo](https://www.loom.com/embed/e32271c3eccc43bb98fffea73a906287?sid=8a1a82b8-7dd8-4ad9-9a0c-f0613c982dac)]([https://www.youtube.com/watch?v=video-id](https://www.loom.com/embed/e32271c3eccc43bb98fffea73a906287?sid=8a1a82b8-7dd8-4ad9-9a0c-f0613c982dac))
 
 https://www.loom.com/share/e32271c3eccc43bb98fffea73a906287?sid=994b6628-1f24-4ae1-bd83-bdd603157bb8
 

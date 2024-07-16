@@ -65,7 +65,7 @@
           </div>
           <div
             v-if="showConfetti && !loading"
-            class="capitalize text-green-800 bg-green-100 border border-green-400 text-xs rounded-md p-4"
+            class="capitalize text-green-900 bg-green-100 border border-green-200 text-sm rounded-md my-2 p-4"
           >
             session created successfully
           </div>
@@ -101,7 +101,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import ConfettiExplosion from 'vue-confetti-explosion'
 import useSessionsStore from '@/stores/sessionsStore'
@@ -118,7 +118,7 @@ import { type ParkingSessionCreateParams, type VehiculeType } from '@/services/s
 const spacesStore = useSpacesStore()
 const { spaces } = storeToRefs(spacesStore)
 const sessionsStore = useSessionsStore()
-const { loading, error } = storeToRefs(sessionsStore)
+const { loading, error, sessionCreateSuccess } = storeToRefs(sessionsStore)
 
 const isResident = ref<boolean>(false)
 const vehicleLicensePlate = ref<string>('')
@@ -152,9 +152,17 @@ const handleSubmit = () => {
     errorMessage.value = null
     sessionsStore.startParkingSession(formData)
     resetForm()
-    showConfetti.value = true
   }
 }
+
+watch(
+  () => sessionCreateSuccess.value,
+  (newValue, oldValue) => {
+    if (sessionCreateSuccess) {
+      showConfetti.value = true
+    }
+  }
+)
 
 const resetForm = () => {
   isResident.value = false

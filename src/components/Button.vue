@@ -19,7 +19,7 @@ import Loading from './Loading.vue'
 interface Props {
   busy?: boolean
   busyText?: string
-  variant?: 'primary' | 'secondary' | 'info' | 'subtle' | 'outlined'
+  variant?: 'primary' | 'secondary' | 'info' | 'subtle'
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xlg'
 }
 const props = defineProps<Props>()
@@ -48,13 +48,11 @@ const buttonClasses = computed((): string => {
 
   switch (props.variant) {
     case 'secondary':
-      return `bg-gray-500 text-white hover:bg-gray-600 focus:ring-gray-500 ${sizeClass}`
+      return `bg-gray-100 text-gray-600 border-gray-300 border border-1 border-solid hover:bg-gray-300 font-semibold focus:ring-gray-500 ${sizeClass}`
     case 'info':
       return `bg-blue-300 text-white hover:bg-blue-400 focus:ring-blue-300 ${sizeClass}`
     case 'subtle':
       return `bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-200 ${sizeClass}`
-    case 'outlined':
-      return `bg-transparent text-blue-500 border border-blue-500 hover:bg-blue-50 focus:ring-blue-500 ${sizeClass}`
     case 'primary':
     default:
       return `bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500 ${sizeClass}`

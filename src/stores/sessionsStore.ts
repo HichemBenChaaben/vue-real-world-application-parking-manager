@@ -26,6 +26,7 @@ const useSessionsStore = defineStore('sessions', () => {
   const currentPage = ref<number>(1)
   const parkingSessionIdBusy = ref<TypeOrNull<string>>(null)
   const sessionStarted = ref<TypeOrNull<StartSessionResponse>>(null)
+  const sessionCreateSuccess = ref<TypeOrNull<boolean>>(null)
 
   const defaultStoreFilters: Partial<SessionListParams> = {
     offset: 0,
@@ -175,10 +176,12 @@ const useSessionsStore = defineStore('sessions', () => {
   const startParkingSession = async (params: ParkingSessionCreateParams): Promise<void> => {
     try {
       loading.value = true
+      sessionCreateSuccess.value = null
       const {
         data: { data }
       } = await api.sessionsService.startSession(params)
       sessionStarted.value = data
+      sessionCreateSuccess.value = true
     } catch (err: unknown | Error | AxiosError) {
       if (axios.isAxiosError(err)) {
         error.value = err.response?.data.message
@@ -211,7 +214,8 @@ const useSessionsStore = defineStore('sessions', () => {
     filteredSessions,
     loading,
     filters,
-    error
+    error,
+    sessionCreateSuccess
   }
 })
 

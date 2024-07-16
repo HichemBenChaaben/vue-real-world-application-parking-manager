@@ -6,7 +6,7 @@
         <p class="text-gray-400">list of the sessions</p>
       </div>
       <div
-        v-if="sessionsList?.parkingSessionsTotalCount"
+        v-if="sessionsList?.parkingSessionsTotalCount || !loading"
         class="flex justify-end items-end flex-col"
       >
         <div>
@@ -22,59 +22,170 @@
           <span v-else class="my-2">no active sessions in the view</span>
         </div>
       </div>
+      <div v-else class="flex flex-col gap-y-2 pt-2">
+        <TextLoader class="min-w-[120px]" />
+        <TextLoader class="min-w-[120px]" />
+      </div>
     </div>
 
-    <div class="flex justify-between border boder-1 border-gray-200 p-4 mb-4">
-      <div class="flex items-center">
-        <label class="inline-flex items-center cursor-pointer capitalize mx-2 min-w-[160px]">
-          <input
-            type="checkbox"
-            class="sr-only peer"
-            v-model="activeSessionsOnly"
-            @change="toggleActiveOnly"
-          />
-          <div
-            class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
-          ></div>
-          <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-            >all sessions</span
-          >
-        </label>
-        <label class="inline-flex items-center cursor-pointer capitalize mx-2 min-w-[160px]">
-          <input
-            type="checkbox"
-            class="sr-only peer"
-            v-model="visitorsOnly"
-            @change="toggleVisitorsOnly"
-          />
-          <div
-            class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
-          ></div>
-          <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
-            visitors only
-          </span>
-        </label>
-        <select
-          v-model="vehiculeType"
-          @change="() => store.filterVehiculeType(vehiculeType)"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    <Modal v-model:modelValue="isModalOpen" class="h-screen w-full animate">
+      <div class="flex flex-col items-start px-0 mx-0 gap-y-10 my-8">
+        <div class="flex flex-row justify-between items-center w-full">
+          <h2 class="text-2xl capitalize font-semibold pb-4">refine results</h2>
+          <Indicator variant="primary">
+            {{ localFilterState?.length }} session{{ localFilterState?.length === 0 ? '' : 's' }}
+          </Indicator>
+        </div>
+        <form
+          @submit.prevent="() => fetchSessionsByLiscencePlate()"
+          class="flex justify-between gap-2 w-full"
+          novalidate
         >
-          <option value="all">all vehicles</option>
-          <option value="car">car</option>
-          <option value="motorcycle">motorcycle</option>
-        </select>
+          <input
+            type="text"
+            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Liscence plate"
+            required
+            v-model="liscencePlate"
+          />
+          <Button
+            class="flex gap-2"
+            type="submit"
+            @click="() => fetchSessionsByLiscencePlate()"
+            :disabled="localSearchLoading"
+          >
+            <span v-if="localSearchLoading">
+              <Loading />
+            </span>
+            search
+          </Button>
+        </form>
+
+        <div class="flex justify-between flex-row w-full">
+          <label class="inline-flex items-center cursor-pointer capitalize mx-2 min-w-[160px]">
+            <input
+              type="checkbox"
+              class="sr-only peer"
+              v-model="activeSessionsOnly"
+              @change="toggleActiveOnly"
+            />
+            <div
+              class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+            ></div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+              >all sessions</span
+            >
+          </label>
+          <label class="inline-flex items-center cursor-pointer capitalize mx-2 min-w-[160px]">
+            <input
+              type="checkbox"
+              class="sr-only peer"
+              v-model="visitorsOnly"
+              @change="toggleVisitorsOnly"
+            />
+            <div
+              class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+            ></div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+              visitors only
+            </span>
+          </label>
+        </div>
+        <div class="w-full flex">
+          <select
+            v-model="vehicleType"
+            @change="() => handleFilterByVehicleType()"
+            class="w-full p-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          >
+            <option value="all">all vehicles</option>
+            <option value="CAR">car</option>
+            <option value="MOTOR">motorcycle</option>
+          </select>
+        </div>
       </div>
-      <div class="flex justify-start items-center gap-2">
-        <input type="date" min="2023-01-01" max="2024-12-31" />
-        <input type="date" min="2023-01-01" max="2024-12-31" />
-        <input
-          type="text"
-          id="first_name"
-          class="w-[200px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          placeholder="Liscence plate"
-          required
-        />
-        <Button>Search</Button>
+      <template #close class="w-full"> Apply </template>
+    </Modal>
+
+    <div class="flex justify-between border boder-1 border-gray-200 p2 lg:p-4 mb-4">
+      <div class="flex lg:hidden flex-row justify-between items-center align-center w-full">
+        <Button class="block lg:hidden my-4 mx-2" @click="() => openModal()">
+          <i class="fas fa-filter"></i>
+          <span class="mx-2">Filter sessions</span>
+        </Button>
+
+        <Button
+          variant="secondary"
+          class="block lg:hidden my-4 mx-2"
+          @click="() => resetLocalFilters()"
+          >reset filters</Button
+        >
+      </div>
+      <div class="hidden lg:flex justify-between w-full">
+        <div class="flex items-center">
+          <label class="inline-flex items-center cursor-pointer capitalize mx-2 min-w-[160px]">
+            <input
+              type="checkbox"
+              class="sr-only peer"
+              v-model="activeSessionsOnly"
+              @change="toggleActiveOnly"
+            />
+            <div
+              class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+            ></div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+              >all sessions</span
+            >
+          </label>
+          <label class="inline-flex items-center cursor-pointer capitalize mx-2 min-w-[160px]">
+            <input
+              type="checkbox"
+              class="sr-only peer"
+              v-model="visitorsOnly"
+              @change="toggleVisitorsOnly"
+            />
+            <div
+              class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+            ></div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+              visitors only
+            </span>
+          </label>
+          <select
+            v-model="vehicleType"
+            @change="() => handleFilterByVehicleType()"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          >
+            <option value="all">all vehicles</option>
+            <option value="CAR">car</option>
+            <option value="MOTOR">motorcycle</option>
+          </select>
+        </div>
+        <div class="flex justify-start items-center gap-2">
+          <form
+            @submit.prevent="() => fetchSessionsByLiscencePlate()"
+            class="flex justify-between gap-2"
+            novalidate
+          >
+            <input
+              type="text"
+              class="w-[200px] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Liscence plate"
+              required
+              v-model="liscencePlate"
+            />
+            <Button
+              class="flex gap-2"
+              type="submit"
+              @click="() => fetchSessionsByLiscencePlate()"
+              :disabled="localSearchLoading"
+            >
+              <span v-if="localSearchLoading">
+                <Loading />
+              </span>
+              search
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -100,7 +211,7 @@
             </thead>
             <tbody class="body-row">
               <tr
-                v-for="session in filteredParkingSessions"
+                v-for="session in localFilterState"
                 :key="session.parkingSessionId"
                 class="text-right"
                 :class="{
@@ -153,7 +264,13 @@
             v-if="filteredParkingSessions?.length === 0 && !loading"
             class="flex justify-center items-center h-40"
           >
-            <p class="text-gray-400">No items to display , try changing your search criteria</p>
+            <p class="text-gray-400">
+              No items to display , try changing your search criteria or
+              <button v-if="!loading" class="text-blue-300" @click="resetLocalFilters()">
+                reset filters
+              </button>
+              <span v-else>...</span>
+            </p>
           </div>
         </div>
       </div>
@@ -190,6 +307,7 @@ import Pagination from './Pagination.vue'
 import Button from '@/components/Button.vue'
 import { useDateFormat } from '@/composables/useDateFormat'
 import Indicator from '@/components/Indicator.vue'
+import Modal from '@/components/Modal/Modal.vue'
 import type { ParkingSession } from '@/services/sessionService'
 
 type VahiculeSelection = 'cars' | 'motorcycles' | 'all'
@@ -198,10 +316,22 @@ const store = useSessionsStore()
 const firstMount = ref<boolean>(true)
 const activeSessionsOnly = ref<boolean>(false)
 const visitorsOnly = ref<boolean>(false)
-const vehiculeType = ref<VahiculeSelection>('all')
+const vehicleType = ref<VahiculeSelection>('all')
+const localSearchLoading = ref<boolean>(false)
 const { loading, filteredParkingSessions, sessionsList, isLastPage, parkingSessionIdBusy } =
   storeToRefs(store)
 const { formatDate } = useDateFormat()
+
+const isModalOpen = ref(false)
+
+const openModal = () => {
+  console.log('open modal')
+  isModalOpen.value = true
+}
+
+const localFilterState = ref<typeof filteredParkingSessions>(filteredParkingSessions)
+
+const liscencePlate = ref<string>()
 
 // infernig the type of the limit from the store
 const totalDisplay = ref<number>(store.filters.limit as number)
@@ -238,12 +368,6 @@ store.fetchSessionList({
   offset: 1
 })
 
-const showIfActive = (session: ParkingSession): boolean => {
-  return (
-    !session.isSessionEnded && session.sessionStartedAt !== null && session.sessionEndedAt === null
-  )
-}
-
 const handleEndSession = (session: ParkingSession): void => {
   store.endParkingSession(session.parkingSessionId)
 }
@@ -256,6 +380,45 @@ const toggleActiveOnly = () => {
 
 const toggleVisitorsOnly = () => {
   store.toggleVisitors(!visitorsOnly.value)
+}
+
+const handleFilterByVehicleType = () => {
+  console.log('vehicleType.value...', vehicleType.value)
+  if (vehicleType.value === 'all') {
+    localFilterState.value = filteredParkingSessions.value
+    return
+  }
+  localFilterState.value = filteredParkingSessions.value?.filter(
+    (session) => session.vehicleType === vehicleType.value
+  )
+}
+
+const resetLocalFilters = () => {
+  visitorsOnly.value = false
+  activeSessionsOnly.value = false
+  liscencePlate.value = ''
+  toggleActiveOnly()
+  store.toggleVisitors(!visitorsOnly.value)
+  store.fetchSessionList({
+    limit: totalDisplay.value,
+    offset: 0
+  })
+  store.currentPage = 1
+}
+
+const fetchSessionsByLiscencePlate = async () => {
+  try {
+    localSearchLoading.value = true
+    await store.fetchSessionList({
+      limit: totalDisplay.value,
+      offset: 0,
+      vehicleLicensePlate: liscencePlate.value
+    })
+  } catch (error) {
+    console.error(error)
+  } finally {
+    localSearchLoading.value = false
+  }
 }
 </script>
 

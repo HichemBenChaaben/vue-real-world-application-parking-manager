@@ -29,7 +29,7 @@
             </div>
           </div>
           <div class="flex flex-between items-top justify-center">
-            <div class="w-1/2 pt-2 text-md color-gray-400 capitalize">
+            <div class="w-1/2 min-h-[220px] pt-2 text-md color-gray-400 capitalize">
               <p>
                 occupancy: <span class="font-semibold">{{ cars?.occupancy }}</span>
               </p>
@@ -96,9 +96,6 @@ import Indicator from '@/components/Indicator.vue'
 import useLoginStore from '@/stores/authStore'
 import Button from '@/components/Button.vue'
 
-const authStore = useLoginStore()
-const { user, isAuthenticated } = storeToRefs(authStore)
-
 const store = useSpacesStore()
 const { motorcycles, cars, loading } = storeToRefs(store)
 
@@ -140,7 +137,7 @@ const config = computed((): Data => {
   @apply my-2 flex flex-col md:grid md:grid-cols-2 gap-4 w-full;
 }
 .overview-card {
-  @apply p-5 rounded overflow-hidden shadow-sm border border-solid border-gray-300 bg-white w-full;
+  @apply p-5 rounded overflow-hidden shadow-sm border border-solid border-gray-300 bg-white w-full min-h-[260px];
   h2 {
     @apply font-semibold text-xl inline-flex justify-center items-center;
     i {

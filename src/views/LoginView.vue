@@ -19,6 +19,7 @@
             type="password"
             id="password"
             v-model="password"
+            autocomplete="current-password" 
             required
             class="w-full px-4 py-2 mt-2 border rounded-lg"
           />

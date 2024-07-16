@@ -280,7 +280,7 @@
           </div>
         </div>
       </div>
-      <div class="mt-4 mx-0 flex justify-center relative">
+      <div class="mt-4 mx-0 flex justify-start sm:justify-center relative">
         <Pagination
           @nextPage="nextPage"
           @previousPage="previousPage"

@@ -5,6 +5,7 @@ import api from '@/services/api'
 import type { ParkingSession, SessionListParams } from '@/services/sessionService'
 import type { TypeOrNull } from 'types'
 import { config } from '@/config'
+import { jsonToUrlParams } from './utils'
 
 interface SessionsRevene {
   sessions: number
@@ -38,14 +39,6 @@ const useSessionsStore = defineStore('revenue', () => {
     isSessionEnded: true,
     sessionStartedAtFrom: new Date(new Date().getFullYear(), 0, 1).toISOString(),
     sessionEndedAtTo: new Date().toISOString()
-  }
-
-  function jsonToUrlParams(params: Record<string, any>): string {
-    const searchParams = new URLSearchParams()
-    Object.entries(params).forEach(([key, value]) => {
-      searchParams.append(key, value)
-    })
-    return searchParams.toString()
   }
 
   const cacheSessionList = new Map()
@@ -119,7 +112,7 @@ const useSessionsStore = defineStore('revenue', () => {
       return
     }
     if (filterKey === 'CAR' || filterKey === 'MOTOR') {
-      const filterByVehicleList = sessionsList.value.filter(
+      const filterByVehicleList = (sessionsList.value as ParkingSession[]).filter(
         (session) => session.vehicleType === filterKey
       )
       state.value.sessions = filterByVehicleList

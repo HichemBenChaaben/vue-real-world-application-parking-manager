@@ -6,7 +6,7 @@ import router from '@/router'
 import type { Maybe } from 'types'
 
 export type User = {
-  readonly id?: string
+  readonly id?: string | number
   readonly email?: string
 }
 

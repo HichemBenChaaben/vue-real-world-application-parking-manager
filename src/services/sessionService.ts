@@ -72,7 +72,7 @@ export interface StartedSession {
 export interface StartSessionResponse {
   startedSession: readonly StartedSession[]
 }
-export async function startSession(
+export function startSession(
   params: ParkingSessionCreateParams
 ): Promise<AxiosResponse<{ data: StartSessionResponse }>> {
   return axiosInstance.post(`/v1/parking/session/start`, {

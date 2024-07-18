@@ -30,8 +30,8 @@ export interface ParkingSessionRequestParams {
   offset: number
   limit: number
 }
-export async function getSpacesList(params: ParkingSessionRequestParams): Promise<AxiosResponse> {
-  return await axiosInstance.get<ParkingSessionGetResponse[]>('/v1/parking/spaces/list/', {
+export function getSpacesList(params: ParkingSessionRequestParams): Promise<AxiosResponse> {
+  return axiosInstance.get<ParkingSessionGetResponse[]>('/v1/parking/spaces/list/', {
     params
   })
 }

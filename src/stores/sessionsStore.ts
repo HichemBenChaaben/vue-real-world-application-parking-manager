@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import axios, { type AxiosError } from 'axios'
 import api from '@/services/api'
@@ -47,10 +47,15 @@ const useSessionsStore = defineStore('sessions', () => {
     ).length
   })
 
-  const fetchSessionList = async (params: Partial<SessionListParams>): Promise<void> => {
+  const cacheSessionsListMap = new Map()
+
+  const fetchSessionList = async (
+    params: Partial<SessionListParams>
+  ): Promise<void | Record<string, any>> => {
     try {
       loading.value = true
       const response = await api.sessionsService.list({
+        // @ts-ignore
         isSessionEnded: isSessionEndedFilter.value ? null : false,
         vehicleLicensePlate: vehicleLicensePlate.value,
         ...params

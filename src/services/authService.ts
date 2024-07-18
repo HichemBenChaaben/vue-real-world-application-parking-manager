@@ -30,14 +30,16 @@ interface LoginCredentials {
   password: string
 }
 
-export async function login(credentials: LoginCredentials): Promise<AxiosResponse<LoginResponse>> {
-  return await axiosInstance.post('/auth/login', credentials)
+export function login(
+  credentials: LoginCredentials
+): Promise<AxiosResponse<{ data: LoginResponse }>> {
+  return axiosInstance.post('/auth/login', credentials)
 }
 
-export async function logout(): Promise<AxiosResponse<void>> {
-  return await axiosInstance.post('/auth/logout')
+export function logout(): Promise<AxiosResponse<void>> {
+  return axiosInstance.post('/auth/logout')
 }
 
-export async function me(): Promise<AxiosResponse<{ data: AuthMeResponse }>> {
-  return await axiosInstance.get('/v1/auth/me')
+export function me(): Promise<AxiosResponse<{ data: AuthMeResponse }>> {
+  return axiosInstance.get('/v1/auth/me')
 }

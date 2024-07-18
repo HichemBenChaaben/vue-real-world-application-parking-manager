@@ -4,11 +4,11 @@ for setup, check the setup below
 
 ## SPA BFF BE Architecture
 
-!["Image description"](arc.png)
+!["Image description"](readme/arc.png)
 
 Scaling architecture
 
-!["Image description"](scale.png)
+!["Image description"](readme/scale.png)
 
 illustrating potential solution to scale the full stack architecture
 to support large real time data sets
@@ -44,16 +44,13 @@ while some are requests are still pending.
 
 ## Preview
 
-[![video demo on loom](https://www.loom.com/embed/e32271c3eccc43bb98fffea73a906287?sid=8a1a82b8-7dd8-4ad9-9a0c-f0613c982dac)]([https://www.youtube.com/watch?v=video-id](https://www.loom.com/embed/e32271c3eccc43bb98fffea73a906287?sid=8a1a82b8-7dd8-4ad9-9a0c-f0613c982dac))
-
-
 <strong>Demo video on loom</strong>
 
 https://www.loom.com/share/e32271c3eccc43bb98fffea73a906287?sid=994b6628-1f24-4ae1-bd83-bdd603157bb8
 
-!["Image description"](preview-1.png)
-!["Image description"](preview-2.png)
-!["Image description"](preview-3.png)
+!["Image description"](readme/preview-1.png)
+!["Image description"](readme/preview-2.png)
+!["Image description"](readme/preview-3.png)
 
 # SETUP
 

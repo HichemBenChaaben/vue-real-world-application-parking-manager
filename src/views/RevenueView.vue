@@ -213,7 +213,7 @@ const vehiculeTypeFilter = ref<VehiculeTypeSelection>('all')
 const currentPage = ref(1)
 const perPage = ref(100)
 
-store.fetchSessionList()
+store.fetchSessionList({})
 
 const setVehiculeTypeFilter = () => {
   store.filterByVehiculeType(vehiculeTypeFilter.value)

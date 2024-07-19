@@ -3,23 +3,46 @@
     <template #title>parking session </template>
     <template #line>create a new parking session </template>
   </Overview>
+  <div class="flex justify-center align-center">
+    <ConfettiExplosion
+      v-if="showConfetti"
+      :particleCount="380"
+      :force="0.2"
+      :particleSize="4"
+      :duration="4000"
+      :stageHeight="600"
+      :shouldDestroyAfterDone="true"
+    />
+  </div>
   <div class="card">
-    <div class="flex justify-center items-center">
-      <ConfettiExplosion
-        v-if="showConfetti"
-        :particleCount="280"
-        :force="0.2"
-        :particleSize="4"
-        :duration="4000"
-        :stageHeight="600"
-        :shouldDestroyAfterDone="true"
-      />
-    </div>
     <div class="gap-4 mb-2 pb-2 flex w-full flex-row justify-start">
       <div class="hidden lg:block min-w-[40%]">
-        <ParkingInformation />
+        <h2 class="text-2xl font-semibold capitalize">capacity</h2>
+        <div
+          class="bg-blue-50 border border-1 border-solid border-blue-100 rounded-4 rounded-md p-4 mt-2"
+        >
+          <div v-for="space in spaces" :key="space.parkingSpaceId" class="my-2 py-1">
+            <div class="flex justify-between">
+              <h4 class="flex items-center">
+                <i
+                  :class="`text-lg fas fa-${space.vehicleType === 'CAR' ? 'car' : 'motorcycle'}`"
+                ></i>
+                <span class="mx-2 font-semibold"> Parking {{ space.parkingSpaceId }} </span>
+              </h4>
+              <Indicator variant="primary">Available</Indicator>
+            </div>
+            <span class="font-semibold my-2">
+              {{ Math.abs(space.occupancy) }} / {{ space.capacity }}</span
+            >
+            <span class="text-xs text-blue-400 ml-2">
+              occupancy of {{ Math.abs(space.occupancy) }} out of {{ space.capacity }} total spaces
+            </span>
+          </div>
+        </div>
       </div>
       <div class="w-full lg:min-w-[600px] lg:border-l-2 lg:border-solid lg:border-gray-100 lg:px-6">
+        <h2 class="text-2xl font-semibold capitalize">Create session</h2>
+        <span class="flex my-2 border-b-2 border-solid border-gray-00"></span>
         <form @submit.prevent="handleSubmit" novalidate>
           <div class="py-2 pt-0">
             <label class="capitalize font-semibold text-lg"> vehicle type </label>
@@ -75,28 +98,6 @@
             <Button type="submit" :busy="loading" busyText="creating a session...">create</Button>
           </div>
         </form>
-        <div
-          class="bg-blue-50 border border-1 border-solid border-blue-100 rounded-4 rounded-md p-4 mt-8"
-        >
-          <h2 class="text-lg font-semibold text-blue-500 capitalize">capacity</h2>
-          <div v-for="space in spaces" :key="space.parkingSpaceId" class="my-2 py-1">
-            <div class="flex justify-between">
-              <h4 class="flex items-center">
-                <i
-                  :class="`text-lg fas fa-${space.vehicleType === 'CAR' ? 'car' : 'motorcycle'}`"
-                ></i>
-                <span class="mx-2 font-semibold"> Parking {{ space.parkingSpaceId }} </span>
-              </h4>
-              <Indicator variant="primary">Available</Indicator>
-            </div>
-            <span class="font-semibold my-2">
-              {{ Math.abs(space.occupancy) }} / {{ space.capacity }}</span
-            >
-            <span class="text-xs text-blue-400 ml-2">
-              occupancy of {{ Math.abs(space.occupancy) }} out of {{ space.capacity }} total spaces
-            </span>
-          </div>
-        </div>
       </div>
     </div>
   </div>

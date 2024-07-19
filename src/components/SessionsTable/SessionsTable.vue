@@ -5,6 +5,12 @@
         <h2 class="text-2xl">Sessions</h2>
         <p class="text-gray-400">list of the sessions</p>
       </div>
+      <div class="hidden md:flex align-center justify-center pt-2">
+        <FilterGroup
+          :activeFilters="activeFilters"
+          @on-reset-filter="(event) => handResetFilter(event)"
+        />
+      </div>
       <div
         v-if="sessionsList?.parkingSessionsTotalCount || !loading"
         class="flex justify-end items-end flex-col"
@@ -27,7 +33,6 @@
         <TextLoader class="min-w-[120px]" />
       </div>
     </div>
-
     <Modal v-model:modelValue="isModalOpen" class="h-screen w-full animate">
       <div class="flex flex-col items-start px-0 mx-0 gap-y-10 my-8">
         <div class="flex flex-row justify-between items-center w-full">
@@ -165,6 +170,7 @@
             <option value="MOTORCYCLE">motorcycle</option>
           </select>
         </div>
+
         <div class="flex justify-start items-center gap-2">
           <form
             @submit.prevent="() => fetchSessionsByLiscencePlate()"
@@ -315,6 +321,7 @@ import { useDateFormat } from '@/composables/useDateFormat'
 import Indicator from '@/components/Indicator.vue'
 import Modal from '@/components/Modal/Modal.vue'
 import type { ParkingSession } from '@/services/sessionService'
+import FilterGroup from '@/components/FilterGroup/FilterGroup.vue'
 
 type VahiculeSelection = 'cars' | 'motorcycles' | 'all'
 
@@ -330,6 +337,7 @@ const liscencePlate = ref<string>()
 const perPage = ref<number>(100)
 const currentPage = ref<number>(1)
 const isModalOpen = ref(false)
+const activeFilters = ref<string[]>([])
 
 const openModal = () => {
   isModalOpen.value = true
@@ -351,6 +359,7 @@ const toggleVisitorsOnly = () => {
       : sessionsList.value.parkingSessions
   }
 }
+
 const toggleActiveOnly = () => {
   store.setIsSessionEndedFilter(activeSessionsOnly.value)
   store.fetchSessionList({
@@ -391,6 +400,10 @@ const resetAllFilters = () => {
 }
 
 const fetchSessionsByLiscencePlate = async () => {
+  if (liscencePlate.value) {
+    activeFilters.value = [...activeFilters.value, liscencePlate.value]
+  }
+
   try {
     localSearchLoading.value = true
     await store.fetchSessionList({
@@ -438,6 +451,17 @@ const isLastPage = computed((): boolean => {
   }
   return false
 })
+
+const handResetFilter = (filter: string) => {
+  activeFilters.value = activeFilters.value.filter((activeFilter) => activeFilter !== filter)
+  liscencePlate.value = ''
+
+  // search with the params
+  store.fetchSessionList({
+    limit: perPage.value,
+    offset: 1
+  })
+}
 </script>
 
 <style scoped>

@@ -1,3 +1,4 @@
+import { config } from '@/config'
 import { format } from 'date-fns'
 
 export function useDateFormat() {

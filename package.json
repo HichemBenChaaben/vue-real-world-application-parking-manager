@@ -19,6 +19,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "ag-charts-vue3": "^10.0.2",
     "axios": "^1.7.2",
     "compress": "^0.99.0",
     "cookie-parser": "^1.4.6",

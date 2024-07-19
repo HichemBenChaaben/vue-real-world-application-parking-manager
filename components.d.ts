@@ -9,7 +9,10 @@ declare module 'vue' {
   export interface GlobalComponents {
     BarChart: typeof import('./src/components/BarChart/BarChart.vue')['default']
     Button: typeof import('./src/components/Button.vue')['default']
+    DataTable: typeof import('./src/components/DataTable/DataTable.vue')['default']
     DaughnutChart: typeof import('./src/components/DaughnutChart.vue')['default']
+    FilterGroup: typeof import('./src/components/FilterGroup/FilterGroup.vue')['default']
+    Header: typeof import('./src/components/DataTable/Header.vue')['default']
     Indicator: typeof import('./src/components/Indicator.vue')['default']
     Loading: typeof import('./src/components/Loading.vue')['default']
     Modal: typeof import('./src/components/Modal/Modal.vue')['default']
@@ -19,6 +22,7 @@ declare module 'vue' {
     ParkingInformation: typeof import('./src/components/ParkingInformation/ParkingInformation.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Row: typeof import('./src/components/DataTable/Row.vue')['default']
     SessionsTable: typeof import('./src/components/SessionsTable/SessionsTable.vue')['default']
     TableLoader: typeof import('./src/components/SessionsTable/TableLoader.vue')['default']
     TextLoader: typeof import('./src/components/TextLoader.vue')['default']

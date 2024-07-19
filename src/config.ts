@@ -17,4 +17,4 @@ export const config: Config = {
     car: 5,
     motorcycle: 3
   }
-}
+} as const

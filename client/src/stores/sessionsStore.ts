@@ -47,8 +47,6 @@ const useSessionsStore = defineStore('sessions', () => {
     ).length
   })
 
-  const cacheSessionsListMap = new Map()
-
   const fetchSessionList = async (
     params: Partial<SessionListParams>
   ): Promise<void | Record<string, any>> => {

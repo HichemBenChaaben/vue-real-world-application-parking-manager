@@ -6,10 +6,7 @@
         <p class="text-gray-400">list of the sessions</p>
       </div>
       <div class="hidden md:flex align-center justify-center pt-2">
-        <FilterGroup
-          :activeFilters="activeFilters"
-          @on-reset-filter="(event) => handResetFilter(event)"
-        />
+        <FilterGroup :activeFilters="activeFilters" @on-reset-filter="handResetFilter" />
       </div>
       <div
         v-if="sessionsList?.parkingSessionsTotalCount || !loading"
@@ -355,7 +352,9 @@ const handleEndSession = (session: ParkingSession): void => {
 const toggleVisitorsOnly = () => {
   if (sessionsList.value) {
     localFilteredState.value = visitorsOnly.value
-      ? sessionsList.value.parkingSessions.filter((session) => session.parkingSpaceId !== 1)
+      ? sessionsList.value.parkingSessions.filter(
+          (session: ParkingSession) => session.parkingSpaceId !== 1
+        )
       : sessionsList.value.parkingSessions
   }
 }
@@ -374,7 +373,7 @@ const handleFilterByVehicleType = () => {
     return
   }
   localFilteredState.value = sessionsList.value?.parkingSessions.filter(
-    (session) => session.vehicleType === vehicleType.value
+    (session: ParkingSession) => session.vehicleType === vehicleType.value
   )
 }
 
@@ -401,7 +400,7 @@ const resetAllFilters = () => {
 
 const fetchSessionsByLiscencePlate = async () => {
   if (liscencePlate.value) {
-    activeFilters.value = [...activeFilters.value, liscencePlate.value]
+    activeFilters.value = [liscencePlate.value]
   }
 
   try {

@@ -4,11 +4,18 @@
     "env.d.ts",
     "types.d.ts",
     "vue.shims.d.ts",
-    "src/**/*",
-    "src/**/*.ts",
-    "src/**/*.vue"
+    "client/src/**/*",
+    "client/src/**/*.ts",
+    "client/src/**/*.vue"
   ],
-  "exclude": ["node_modules", "dist", "vite.config.ts", "node_modules", "dist", "src/preview"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "vite.config.ts",
+    "node_modules",
+    "dist",
+    "client/src/preview"
+  ],
   "compilerOptions": {
     "composite": true,
     "strict": true,
@@ -20,7 +27,7 @@
     "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./client/src/*"]
     }
   }
 }

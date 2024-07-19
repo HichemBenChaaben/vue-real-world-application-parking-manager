@@ -8,6 +8,7 @@ import Components from 'unplugin-vue-components/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  root: 'client',
   server: {
     port: 3001, // run the frontend of different port on dev
     proxy: {

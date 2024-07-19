@@ -2,7 +2,7 @@ export default {
   plugins: {
     tailwindcss: {
       jit: false,
-      purge: ['./src/**/*.vue']
+      purge: ['./client/src/**/*.vue']
     },
     autoprefixer: {}
   }

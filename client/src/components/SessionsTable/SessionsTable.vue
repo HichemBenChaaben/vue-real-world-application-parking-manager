@@ -167,8 +167,8 @@
             <option value="MOTORCYCLE">motorcycle</option>
           </select>
         </div>
-
         <div class="flex justify-start items-center gap-2">
+          <DatePicker @changed="handleSearchByDate" />
           <form
             @submit.prevent="() => fetchSessionsByLiscencePlate()"
             class="flex justify-between gap-2"
@@ -319,6 +319,8 @@ import Indicator from '@/components/Indicator.vue'
 import Modal from '@/components/Modal/Modal.vue'
 import type { ParkingSession } from '@/services/sessionService'
 import FilterGroup from '@/components/FilterGroup/FilterGroup.vue'
+import DatePicker from '@/components/DatePicker/DatePicker.vue'
+import Activity from '@/components/Activity/Activity.vue'
 
 type VahiculeSelection = 'cars' | 'motorcycles' | 'all'
 
@@ -460,6 +462,10 @@ const handResetFilter = (filter: string) => {
     limit: perPage.value,
     offset: 1
   })
+}
+
+const handleSearchByDate = (value: { startDate: Date; endDate: Date }) => {
+  store.setDateRange({ startDate: value.startDate, endDate: value.endDate })
 }
 </script>
 

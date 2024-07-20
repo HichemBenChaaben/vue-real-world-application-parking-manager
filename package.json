@@ -19,6 +19,7 @@
     "format": "prettier --write client/src/"
   },
   "dependencies": {
+    "@vuepic/vue-datepicker": "^9.0.1",
     "ag-charts-vue3": "^10.0.2",
     "axios": "^1.7.2",
     "compress": "^0.99.0",
@@ -37,6 +38,8 @@
     "vue-confetti": "^2.3.0",
     "vue-confetti-explosion": "^1.0.2",
     "vue-router": "^4.3.3",
+    "vue3-date-time-picker": "^2.8.3",
+    "vue3-datepicker": "^0.4.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

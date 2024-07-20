@@ -7,9 +7,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Activity: typeof import('./src/components/Activity/Activity.vue')['default']
     BarChart: typeof import('./src/components/BarChart/BarChart.vue')['default']
     Button: typeof import('./src/components/Button.vue')['default']
     DataTable: typeof import('./src/components/DataTable/DataTable.vue')['default']
+    DatePicker: typeof import('./src/components/DatePicker/DatePicker.vue')['default']
     DaughnutChart: typeof import('./src/components/DaughnutChart.vue')['default']
     FilterGroup: typeof import('./src/components/FilterGroup/FilterGroup.vue')['default']
     Header: typeof import('./src/components/DataTable/Header.vue')['default']

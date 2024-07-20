@@ -143,6 +143,14 @@ const useSessionsStore = defineStore('sessions', () => {
   /* Use the state in the template or computed properties */
   const filteredSessions = computed(() => filteredParkingSessions.value)
 
+  const setDateRange = ({ starDate, endDate }) => {
+    fetchSessionList({
+      limit: 0,
+      offset: 0,
+      sessionStartedAtFrom: starDate,
+      sessionEndedAtTo: endDate
+    })
+  }
   return {
     activeSessions,
     sessionsList,
@@ -151,6 +159,7 @@ const useSessionsStore = defineStore('sessions', () => {
     endParkingSession,
     startParkingSession,
     setIsSessionEndedFilter,
+    setDateRange,
     currentPage,
     isSessionEndedFilter,
     filteredParkingSessions,
